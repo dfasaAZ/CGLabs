@@ -63,8 +63,21 @@ void Game::Initialize() {
 	}
 
 	// Создаем треугольники
-	triangleComponent = new TriangleComponent(this);
-	triangleComponent->Initialize();
+	DirectX::XMFLOAT4 points[6] = {
+		DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f),
+		DirectX::XMFLOAT4(-0.5f, -0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f),
+		DirectX::XMFLOAT4(0.5f, -0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f),
+
+	};
+	triangleComponent = new TriangleComponent(this,points);
+	Components.push_back(triangleComponent);
+
+	DirectX::XMFLOAT4 points1[6] = {
+		DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f),
+		DirectX::XMFLOAT4(-0.5f, -0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f),
+		DirectX::XMFLOAT4(-0.5f, 0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f),
+	};
+	triangleComponent = new TriangleComponent(this, points1);
 	Components.push_back(triangleComponent);
 
 }

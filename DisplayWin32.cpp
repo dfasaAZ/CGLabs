@@ -24,8 +24,8 @@ LRESULT CALLBACK DisplayWin32::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARA
 }
 
 DisplayWin32::DisplayWin32()
-    : clientWidth(1280),
-    clientHeight(720),
+    : clientWidth(800),
+    clientHeight(800),
     hwnd(nullptr),
     hInstance(GetModuleHandle(nullptr)),
     applicationName(L"My3DApp")

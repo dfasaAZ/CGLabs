@@ -1,9 +1,9 @@
-#include "TriangleComponent.h"
+﻿#include "TriangleComponent.h"
 #include "Game.h" // ensure Game is fully defined in this translation unit
 #include <d3dcompiler.h>
 #include <iostream>
 
-TriangleComponent::TriangleComponent(Game* g)
+TriangleComponent::TriangleComponent(Game* g, DirectX::XMFLOAT4 points[6])
 	: GameComponent(g)
 	, rastState(nullptr)
 	, vertexShader(nullptr)
@@ -12,6 +12,11 @@ TriangleComponent::TriangleComponent(Game* g)
 	, vb(nullptr)
 	, ib(nullptr)
 {
+   
+    for (int i = 0; i < 6; ++i) {
+        this->points[i] = points[i];
+    }
+	this->Initialize();
 }
 
 void TriangleComponent::Initialize() {
@@ -98,7 +103,7 @@ void TriangleComponent::Initialize() {
 		pixelBC->GetBufferSize(),
 		nullptr, &pixelShader);
 
-	// use the member `layout` (do not redeclare a new local variable that shadows it)
+
 	game->Device->CreateInputLayout(
 		inputElements,
 		2,
@@ -106,12 +111,7 @@ void TriangleComponent::Initialize() {
 		vertexBC->GetBufferSize(),
 		&layout);
 
-	DirectX::XMFLOAT4 points[8] = {
-		DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f),
-		DirectX::XMFLOAT4(-0.5f, -0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f),
-		DirectX::XMFLOAT4(0.5f, -0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f),
-		DirectX::XMFLOAT4(-0.5f, 0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
-	};
+	
 
 
 	D3D11_BUFFER_DESC vertexBufDesc = {};
@@ -120,7 +120,7 @@ void TriangleComponent::Initialize() {
 	vertexBufDesc.CPUAccessFlags = 0;
 	vertexBufDesc.MiscFlags = 0;
 	vertexBufDesc.StructureByteStride = 0;
-	// avoid size_t -> UINT conversion warning by casting explicitly
+
 	vertexBufDesc.ByteWidth = static_cast<UINT>(sizeof(DirectX::XMFLOAT4) * std::size(points));
 
 	D3D11_SUBRESOURCE_DATA vertexData = {};
@@ -130,14 +130,14 @@ void TriangleComponent::Initialize() {
 
 	game->Device->CreateBuffer(&vertexBufDesc, &vertexData, &vb);
 
-	int indeces[] = { 0,1,2, 1,0,3 };
+	int indeces[] = { 0,1,2};
 	D3D11_BUFFER_DESC indexBufDesc = {};
 	indexBufDesc.Usage = D3D11_USAGE_DEFAULT;
 	indexBufDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	indexBufDesc.CPUAccessFlags = 0;
 	indexBufDesc.MiscFlags = 0;
 	indexBufDesc.StructureByteStride = 0;
-	// avoid size_t -> UINT conversion warning by casting explicitly
+
 	indexBufDesc.ByteWidth = static_cast<UINT>(sizeof(int) * std::size(indeces));
 
 	D3D11_SUBRESOURCE_DATA indexData = {};
@@ -148,7 +148,7 @@ void TriangleComponent::Initialize() {
 
 	game->Device->CreateBuffer(&indexBufDesc, &indexData, &ib);
 
-	// assign to index 0 (arrays have size 1)
+
 	strides[0] = 32u;
 	offsets[0] = 0u;
 
@@ -166,10 +166,10 @@ void TriangleComponent::Initialize() {
 }
 
 void TriangleComponent::Draw() {
-	// RSSetState
+	
 	game->context->RSSetState(rastState);
 
-	// Viewport
+	
 	D3D11_VIEWPORT viewport = {};
 	viewport.Width = static_cast<float>(game->Display.clientWidth);
 	viewport.Height = static_cast<float>(game->Display.clientHeight);
@@ -179,21 +179,21 @@ void TriangleComponent::Draw() {
 	viewport.MaxDepth = 1.0f;
 	game->context->RSSetViewports(1, &viewport);
 
-	// Input assembler
+	// хз
 	game->context->IASetInputLayout(layout);
 	game->context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	game->context->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
 	game->context->IASetVertexBuffers(0, 1, &vb, strides, offsets);
 
-	// Shaders
+	// Шейдеры
 	game->context->VSSetShader(vertexShader, nullptr, 0);
 	game->context->PSSetShader(pixelShader, nullptr, 0);
 
-	// Draw
+	// Рисовать
 	game->context->DrawIndexed(6, 0, 0);
 }
 void TriangleComponent::Update() {
-	// No update logic for this simple triangle
+
 }
 
 void TriangleComponent::DestroyResources() {
