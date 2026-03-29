@@ -42,6 +42,9 @@
     <ClCompile Include="RectangleComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PhysicsComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Delegates.natvis" />
@@ -72,6 +75,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RectangleComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -11,8 +11,10 @@ GameComponent::GameComponent(Game* g) : game(g),
 	ib(nullptr),
 	positonConstraint(1.0f, 1.0f, 1.0f),
 	rotationConstraint(1.0f, 1.0f, 1.0f),
-	scaleConstraint(1.0f, 1.0f, 1.0f)
+	scaleConstraint(1.0f, 1.0f, 1.0f),
+	physics(nullptr)
 {
+	physics = new PhysicsComponent();
 }
 
 GameComponent::~GameComponent()
@@ -23,41 +25,118 @@ GameComponent::~GameComponent()
 	}
 	if (vb) { vb->Release(); vb = nullptr; }
 	if (ib) { ib->Release(); ib = nullptr; }
+	if (physics) {
+		delete physics;
+		physics = nullptr;
+	}
 }
+
 void GameComponent::setPosition(DirectX::XMFLOAT3 position) {
 	this->position = position;
 	updateConstantBuffer();
 }
+
 void GameComponent::setRotation(DirectX::XMFLOAT3 rotation) {
 	this->rotation = rotation;
 	updateConstantBuffer();
 }
+
 void GameComponent::setScale(DirectX::XMFLOAT3 scale) {
 	this->scale = scale;
 	updateConstantBuffer();
 }
+
 void GameComponent::setPosition(float x, float y, float z) {
 	setPosition(DirectX::XMFLOAT3(x, y, z));
 }
+
 void GameComponent::setRotation(float x, float y, float z) {
 	setRotation(DirectX::XMFLOAT3(x, y, z));
 }
+
 void GameComponent::setScale(float x, float y, float z) {
 	setScale(DirectX::XMFLOAT3(x, y, z));
 }
+
+DirectX::XMFLOAT3 GameComponent::getPosition() const {
+	return position;
+}
+
+DirectX::XMFLOAT3 GameComponent::getRotation() const {
+	return rotation;
+}
+
+DirectX::XMFLOAT3 GameComponent::getScale() const {
+	return scale;
+}
+PhysicsComponent* GameComponent::getPhysics() {
+	return physics;
+}
+
 void GameComponent::translate(DirectX::XMFLOAT3 delta) {
 	setPosition(DirectX::XMFLOAT3(
-		position.x + (delta.x*positonConstraint.x), 
-		position.y + (delta.y*positonConstraint.y), 
-		position.z + (delta.z*positonConstraint.z)));
+		position.x + (delta.x * positonConstraint.x),
+		position.y + (delta.y * positonConstraint.y),
+		position.z + (delta.z * positonConstraint.z)));
 	printf("Position: (%f, %f, %f)\n", position.x, position.y, position.z);
 }
+
 void GameComponent::rotate(DirectX::XMFLOAT3 delta) {
 	setRotation(DirectX::XMFLOAT3(
 		rotation.x + (delta.x * rotationConstraint.x),
 		rotation.y + (delta.y * rotationConstraint.y),
 		rotation.z + (delta.z * rotationConstraint.z)));
 }
+
+void GameComponent::setPositionConstraint(float x, float y, float z) {
+	positonConstraint = DirectX::XMFLOAT3(x, y, z);
+}
+
+DirectX::XMFLOAT3 GameComponent::getPositionConstraint() const {
+	return positonConstraint;
+}
+
+void GameComponent::setRotationConstraint(float x, float y, float z) {
+	rotationConstraint = DirectX::XMFLOAT3(x, y, z);
+}
+
+DirectX::XMFLOAT3 GameComponent::getRotationConstraint() const {
+	return rotationConstraint;
+}
+
+void GameComponent::setScaleConstraint(float x, float y, float z) {
+	scaleConstraint = DirectX::XMFLOAT3(x, y, z);
+}
+
+DirectX::XMFLOAT3 GameComponent::getScaleConstraint() const {
+	return scaleConstraint;
+}
+void GameComponent::update() {
+}
+void GameComponent::updatePhysics(float deltaTime) {
+	if (physics) {
+		physics->update(deltaTime, this);
+	}
+}
+
+bool GameComponent::checkCollision(GameComponent* other) {
+	if (!physics || !other || !other->physics) return false;
+	return physics->checkAABBCollision(
+		other->physics,
+		position, scale,
+		other->position, other->scale);
+}
+
+void GameComponent::resolveCollision(GameComponent* other) {
+	if (!physics || !other || !other->physics) return;
+	physics->resolveAABBCollision(
+		other->physics,
+		position, scale,
+		other->position, other->scale);
+	updateConstantBuffer();
+	other->updateConstantBuffer();
+}
+
 void GameComponent::updateConstantBuffer() {
 	if (!constantBuffer) return;
 	ConstantBuffer cb;
@@ -65,7 +144,6 @@ void GameComponent::updateConstantBuffer() {
 		DirectX::XMMatrixRotationRollPitchYaw(rotation.x, rotation.y, rotation.z) *
 		DirectX::XMMatrixTranslation(position.x, position.y, position.z);
 
-	// Transpose matrices before sending to HLSL (HLSL expects column-major by default)
 	cb.world = DirectX::XMMatrixTranspose(world);
 
 	float aspect = static_cast<float>(game->Display.clientWidth) /
@@ -76,6 +154,7 @@ void GameComponent::updateConstantBuffer() {
 
 	game->context->UpdateSubresource(constantBuffer, 0, nullptr, &cb, 0, 0);
 }
+
 void GameComponent::createConstantBuffer() {
 	D3D11_BUFFER_DESC cbd = {};
 	cbd.Usage = D3D11_USAGE_DEFAULT;
@@ -83,6 +162,7 @@ void GameComponent::createConstantBuffer() {
 	cbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	game->Device->CreateBuffer(&cbd, nullptr, &constantBuffer);
 }
+
 HRESULT GameComponent::CompileShaderFromFile(
 	LPCWSTR filePath,
 	const D3D_SHADER_MACRO* macros,
@@ -108,9 +188,6 @@ HRESULT GameComponent::CompileShaderFromFile(
 			char* compileErrors = static_cast<char*>(errorBlob->GetBufferPointer());
 			std::cout << compileErrors << std::endl;
 			errorBlob->Release();
-		}
-		else {
-			// Caller will decide how to handle missing file; keep message as before
 		}
 		if (shaderBlob) shaderBlob->Release();
 		return hr;
@@ -160,23 +237,4 @@ ID3D11Buffer* GameComponent::createIndexBuffer(const void* data, UINT byteWidth)
 		return buffer;
 	}
 	return nullptr;
-}
-
-void GameComponent::setPositionConstraint(float x, float y, float z) {
-	positonConstraint = (DirectX::XMFLOAT3(x, y, z));
-}
-DirectX::XMFLOAT3 GameComponent::getPositionConstraint() const {
-	return positonConstraint;
-}
-void GameComponent::setRotationConstraint(float x, float y, float z) {
-	rotationConstraint = (DirectX::XMFLOAT3(x, y, z));
-}
-DirectX::XMFLOAT3 GameComponent::getRotationConstraint() const {
-	return rotationConstraint;
-}
-void GameComponent::setScaleConstraint(float x, float y, float z) {
-	scaleConstraint = (DirectX::XMFLOAT3(x, y, z));
-}
-DirectX::XMFLOAT3 GameComponent::getScaleConstraint() const {
-	return scaleConstraint;
 }

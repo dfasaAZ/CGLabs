@@ -129,6 +129,7 @@
     <ClCompile Include="GameComponent.cpp" />
     <ClCompile Include="InputDevice.cpp" />
     <ClCompile Include="MySuper3DApp.cpp" />
+    <ClCompile Include="PhysicsComponent.cpp" />
     <ClCompile Include="RectangleComponent.cpp" />
     <ClCompile Include="SimpleMath.cpp" />
     <ClCompile Include="TriangleComponent.cpp" />
@@ -140,6 +141,7 @@
     <ClInclude Include="GameComponent.h" />
     <ClInclude Include="InputDevice.h" />
     <ClInclude Include="Keys.h" />
+    <ClInclude Include="PhysicsComponent.h" />
     <ClInclude Include="RectangleComponent.h" />
     <ClInclude Include="SimpleMath.h" />
     <ClInclude Include="TriangleComponent.h" />

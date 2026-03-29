@@ -3,6 +3,8 @@
 #include <d3d11.h>
 #include <d3dcompiler.h>
 #include <directxmath.h>
+#include "PhysicsComponent.h"
+
 class Game;
 
 class GameComponent
@@ -41,6 +43,12 @@ public:
 	void setScaleConstraint(float x, float y, float z);
 	DirectX::XMFLOAT3 getScaleConstraint() const;
 
+	// Physics
+	PhysicsComponent* getPhysics();
+	void updatePhysics(float deltaTime);
+	bool checkCollision(GameComponent* other);
+	void resolveCollision(GameComponent* other);
+
 protected:
 	ID3D11Buffer* getConstantBuffer() { return constantBuffer; }
 	void updateConstantBuffer();
@@ -50,12 +58,11 @@ protected:
 	ID3D11Buffer* createVertexBuffer(const void* data, UINT byteWidth);
 	ID3D11Buffer* createIndexBuffer(const void* data, UINT byteWidth);
 
-
-
-
 	static HRESULT CompileShaderFromFile(LPCWSTR filePath, const D3D_SHADER_MACRO* macros, LPCSTR entryPoint, LPCSTR target, ID3DBlob** outBlob);
 
 protected:
+	PhysicsComponent* physics;
+
 	DirectX::XMFLOAT3 position;
 	DirectX::XMFLOAT3 rotation;
 	DirectX::XMFLOAT3 scale;
