@@ -4,7 +4,7 @@
 #include <algorithm>
 
 PhysicsComponent::PhysicsComponent()
-	: mass(0.1f)
+	: mass(1.0f)
 	, velocity(0.0f, 0.0f, 0.0f)
 	, acceleration(0.0f, 0.0f, 0.0f)
 	, gravity(0.0f, -9.81f, 0.0f)

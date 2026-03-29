@@ -9,15 +9,28 @@
 #include <iostream>
 #include <cmath>
 #include "RectangleComponent.h"
+#include "PongBall.h"
 
 Game::Game() :inputDevice(this)
 {
 	Display.setGameInstance(this);
+	ball = nullptr;
 }
 
 Game::~Game()
 {
 }
+
+void Game::spawnBall()
+{
+	if (ball == nullptr) {
+		ball = new PongBall(this, DirectX::XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f));
+		ball->setPosition(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
+		ball->getPhysics()->setVelocity(DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f)); // Начальная скорость мяча
+		Components.push_back(ball);
+	}
+}
+
 void Game::Initialize() {
 	
 	PrepareResources();
@@ -35,6 +48,7 @@ void Game::Initialize() {
 	rect->getPhysics()->setKinematic(false);
 	rect->getPhysics()->setGravity(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
 	Components.push_back(rect);
+	players.push_back(rect);
 
 	rect = new RectangleComponent(this, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
 	rect->setScale(DirectX::XMFLOAT3(0.65f, 0.065f, 1.0f));
@@ -44,6 +58,7 @@ void Game::Initialize() {
 	rect->getPhysics()->setKinematic(false);
 	rect->getPhysics()->setGravity(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
 	Components.push_back(rect);
+	players.push_back(rect);
 
 	// Стены
 	// Top wall
@@ -123,6 +138,21 @@ void Game::Run() {
 
 		processInput(deltaTime);
 
+		if (ball != nullptr && ball->isOutOfBounds()) {
+			// Find and remove ball from Components
+			for (auto it = Components.begin(); it != Components.end(); ++it) {
+				if (*it == ball) {
+					Components.erase(it);
+					break;
+				}
+			}
+			delete ball;
+			ball = nullptr;
+		}
+
+		if (ball == nullptr) {
+			spawnBall();
+		}
 
 		if (context) {
 			context->ClearState();
