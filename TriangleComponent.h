@@ -21,7 +21,8 @@ private:
     ID3D11InputLayout* layout ;
 
 	DirectX::XMFLOAT4 points[6];
-	
+	int pointsCount;
+
     ID3D11Buffer* vb ;
     ID3D11Buffer* ib ;
 	UINT strides[1];

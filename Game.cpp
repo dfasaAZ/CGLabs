@@ -8,6 +8,7 @@
 #include <d3dcompiler.h>
 #include <iostream>
 #include <cmath>
+#include "RectangleComponent.h"
 
 Game::Game() :inputDevice(this)
 {
@@ -25,24 +26,21 @@ void Game::Initialize() {
 	if (context && rtv) {
 		context->OMSetRenderTargets(1, &rtv, nullptr);
 	}
+	
+	RectangleComponent* rect = new RectangleComponent(this, DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
+	rect->setScale(DirectX::XMFLOAT3(0.65f, 0.065f, 1.0f));
+	rect->setPosition(DirectX::XMFLOAT3(0.0f, -1.0f, 0.0f));
+	rect->setPositionConstraint(1.0f, 0.0f, 0.0f);
+	rect->setRotationConstraint(0.0f, 0.0f, 0.0f);
+	Components.push_back(rect);
 
-	// Создаем треугольники
-	DirectX::XMFLOAT4 points[6] = {
-		DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f),
-		DirectX::XMFLOAT4(-0.5f, -0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f),
-		DirectX::XMFLOAT4(0.5f, -0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f),
 
-	};
-	triangleComponent = new TriangleComponent(this,points);
-	Components.push_back(triangleComponent);
-
-	DirectX::XMFLOAT4 points1[6] = {
-		DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f),
-		DirectX::XMFLOAT4(-0.5f, -0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f),
-		DirectX::XMFLOAT4(-0.5f, 0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f),
-	};
-	triangleComponent = new TriangleComponent(this, points1);
-	Components.push_back(triangleComponent);
+	rect = new RectangleComponent(this, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
+	rect->setScale(DirectX::XMFLOAT3(0.65f, 0.065f, 1.0f));
+	rect->setPosition(DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f));
+	rect->setPositionConstraint(1.0f, 0.0f, 0.0f);
+	rect->setRotationConstraint(0.0f, 0.0f, 0.0f);
+	Components.push_back(rect);
 
 }
 void Game::CreateBackBuffer() {
@@ -102,6 +100,8 @@ void Game::Run() {
 		float red = fmodf(totalTime, 1.0f);
 		float color[] = { red, 0.1f, 0.1f, 1.0f };
 		context->ClearRenderTargetView(rtv, color);
+		
+		viewportFromDisplay();
 
 		for (auto component : Components) {
 			component->draw();
@@ -110,6 +110,16 @@ void Game::Run() {
 		swapChain->Present(1, 0);
 	}
 	
+}
+void Game::viewportFromDisplay() {
+	D3D11_VIEWPORT viewport = {};
+	viewport.Width = static_cast<float>(Display.clientWidth);
+	viewport.Height = static_cast<float>(Display.clientHeight);
+	viewport.TopLeftX = 0;
+	viewport.TopLeftY = 0;
+	viewport.MinDepth = 0;
+	viewport.MaxDepth = 1.0f;
+	context->RSSetViewports(1, &viewport);
 }
 void Game::PrepareResources() {
 	D3D_FEATURE_LEVEL featureLevel[] = { D3D_FEATURE_LEVEL_11_1 };

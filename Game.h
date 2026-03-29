@@ -39,6 +39,8 @@ protected:
 	void RestoreTargets();
 	void Run();
 
+	void viewportFromDisplay();
+
 
 };
 

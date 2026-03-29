@@ -1,9 +1,9 @@
-﻿#include "TriangleComponent.h"
+﻿#include "RectangleComponent.h"
 #include "Game.h"
 #include <d3dcompiler.h>
 #include <iostream>
-
-TriangleComponent::TriangleComponent(Game* g, DirectX::XMFLOAT4 points[6])
+//Конструктор с передачей точек
+RectangleComponent::RectangleComponent(Game* g, DirectX::XMFLOAT4 points[8])
 	: GameComponent(g)
 	, rastState(nullptr)
 	, vertexShader(nullptr)
@@ -12,24 +12,46 @@ TriangleComponent::TriangleComponent(Game* g, DirectX::XMFLOAT4 points[6])
 	, vb(nullptr)
 	, ib(nullptr)
 {
-    for (int i = 0; i < 6; ++i) {
-        this->points[i] = points[i];
-    }
-	pointsCount = 6;
+	for (int i = 0; i < 8; ++i) {
+		this->points[i] = points[i];
+	}
+	pointsCount = 8;
+	createConstantBuffer();
+	this->initialize();
+}
+//Коестпкор с дефолтными точками
+RectangleComponent::RectangleComponent(Game* g, DirectX::XMFLOAT4 color)  : GameComponent(g)
+	, rastState(nullptr)
+	, vertexShader(nullptr)
+	, pixelShader(nullptr)
+	, layout(nullptr)
+	, vb(nullptr)
+	, ib(nullptr)
+{
+	DirectX::XMFLOAT4 rectPoints[8] = {
+	DirectX::XMFLOAT4(-0.5f, -0.5f, 0.0f, 1.0f), color,   // Bottom-left 
+	DirectX::XMFLOAT4(0.5f, -0.5f, 0.0f, 1.0f),  	color,   // Bottom-right 
+	DirectX::XMFLOAT4(0.5f, 0.5f, 0.0f, 1.0f),   	color,   // Top-right 
+	DirectX::XMFLOAT4(-0.5f, 0.5f, 0.0f, 1.0f),  	color    // Top-left 
+	};
+	for (int i = 0; i < 8; ++i) {
+		this->points[i] = rectPoints[i];
+	}
+	pointsCount = 8;
 	createConstantBuffer();
 	this->initialize();
 }
 
-void TriangleComponent::initialize() {
+void RectangleComponent::initialize() {
 	ID3DBlob* vertexBC = nullptr;
-	auto res = CompileShaderFromFile(L"./Shaders/MyVeryFirstShader.hlsl",
+	auto res = CompileShaderFromFile(L"./Shaders/BlueRectangleShader.hlsl",
 		nullptr /*macros*/,
 		"VSMain",
 		"vs_5_0",
 		&vertexBC);
 
 	if (FAILED(res)) {
-		MessageBox(game->Display.hwnd, L"MyVeryFirstShader.hlsl", L"Missing Shader File or compile error", MB_OK);
+		MessageBox(game->Display.hwnd, L"BlueRectangleShader.hlsl", L"Missing Shader File or compile error", MB_OK);
 		return;
 	}
 
@@ -52,18 +74,16 @@ void TriangleComponent::initialize() {
 			0}
 	};
 
-	D3D_SHADER_MACRO Shader_Macros[] = { "TEST", "1", "TCOLOR", "float4(0.0f, 1.0f, 0.0f, 1.0f)", nullptr, nullptr };
-
 	ID3DBlob* pixelBC = nullptr;
-	res = CompileShaderFromFile(L"./Shaders/MyVeryFirstShader.hlsl",
-		Shader_Macros,
+	res = CompileShaderFromFile(L"./Shaders/BlueRectangleShader.hlsl",
+		nullptr,
 		"PSMain",
 		"ps_5_0",
 		&pixelBC);
 
 	if (FAILED(res)) {
 		if (vertexBC) vertexBC->Release();
-		MessageBox(game->Display.hwnd, L"MyVeryFirstShader.hlsl", L"Missing Shader File or compile error", MB_OK);
+		MessageBox(game->Display.hwnd, L"BlueRectangleShader.hlsl", L"Missing Shader File or compile error", MB_OK);
 		return;
 	}
 
@@ -78,7 +98,6 @@ void TriangleComponent::initialize() {
 		pixelBC->GetBufferSize(),
 		nullptr, &pixelShader);
 
-	
 	game->Device->CreateInputLayout(
 		inputElements,
 		2,
@@ -86,9 +105,8 @@ void TriangleComponent::initialize() {
 		vertexBC->GetBufferSize(),
 		&layout);
 
-	// create vertex/index buffers from explicit memory
-	vb = createVertexBuffer(points, static_cast<UINT>(sizeof(points))); // sizeof(points) = sizeof(XMFLOAT4)*6
-	int indeces[] = {0,1,2};
+	vb = createVertexBuffer(points, static_cast<UINT>(sizeof(DirectX::XMFLOAT4) * 8)); // sizeof(points) = 
+	int indeces[] = { 0, 1, 2, 2, 3, 0 };
 	ib = createIndexBuffer(indeces, static_cast<UINT>(sizeof(indeces)));
 
 	strides[0] = 32u;
@@ -102,10 +120,10 @@ void TriangleComponent::initialize() {
 
 	if (vertexBC) vertexBC->Release();
 	if (pixelBC) pixelBC->Release();
-	updateConstantBuffer();	
+	updateConstantBuffer();
 }
 
-void TriangleComponent::draw() {
+void RectangleComponent::draw() {
 	ID3D11Buffer* cb = getConstantBuffer();
 	game->context->RSSetState(rastState);
 	game->context->VSSetConstantBuffers(0, 1, &cb);
@@ -118,13 +136,14 @@ void TriangleComponent::draw() {
 	game->context->VSSetShader(vertexShader, nullptr, 0);
 	game->context->PSSetShader(pixelShader, nullptr, 0);
 
-	game->context->DrawIndexed(3, 0, 0);
+	game->context->DrawIndexed(6, 0, 0);
 }
-void TriangleComponent::update() {
+
+void RectangleComponent::update() {
 
 }
 
-void TriangleComponent::destroyResources() {
+void RectangleComponent::destroyResources() {
 	if (rastState) { rastState->Release(); rastState = nullptr; }
 	if (vertexShader) { vertexShader->Release(); vertexShader = nullptr; }
 	if (pixelShader) { pixelShader->Release(); pixelShader = nullptr; }
@@ -133,11 +152,11 @@ void TriangleComponent::destroyResources() {
 	if (ib) { ib->Release(); ib = nullptr; }
 }
 
-void TriangleComponent::reload() {
+void RectangleComponent::reload() {
 	destroyResources();
 	initialize();
 }
 
-TriangleComponent::~TriangleComponent() {
+RectangleComponent::~RectangleComponent() {
 	destroyResources();
 }
