@@ -26,7 +26,7 @@ void Game::spawnBall()
 	if (ball == nullptr) {
 		ball = new PongBall(this, DirectX::XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f));
 		ball->setPosition(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
-		ball->getPhysics()->setVelocity(DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f)); // Начальная скорость мяча
+		ball->getPhysics()->setVelocity(DirectX::XMFLOAT3(1.0f, 1.0f, 0.0f)); // Начальная скорость мяча
 		Components.push_back(ball);
 	}
 }
@@ -47,6 +47,7 @@ void Game::Initialize() {
 	rect->setRotationConstraint(0.0f, 0.0f, 0.0f);
 	rect->getPhysics()->setKinematic(false);
 	rect->getPhysics()->setGravity(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
+	rect->getPhysics()->setRestitution(1.0f); 
 	Components.push_back(rect);
 	players.push_back(rect);
 
@@ -57,6 +58,7 @@ void Game::Initialize() {
 	rect->setRotationConstraint(0.0f, 0.0f, 0.0f);
 	rect->getPhysics()->setKinematic(false);
 	rect->getPhysics()->setGravity(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
+	rect->getPhysics()->setRestitution(1.0f); 
 	Components.push_back(rect);
 	players.push_back(rect);
 
@@ -67,6 +69,7 @@ void Game::Initialize() {
 	rect->setPosition(DirectX::XMFLOAT3(0.0f, 1.05f, 0.0f));
 	rect->setPositionConstraint(0.0f, 0.0f, 0.0f);
 	rect->getPhysics()->setKinematic(true);
+	rect->getPhysics()->setRestitution(1.0f); 
 	Components.push_back(rect);
 
 	// Bottom wall
@@ -75,6 +78,7 @@ void Game::Initialize() {
 	rect->setPosition(DirectX::XMFLOAT3(0.0f, -1.05f, 0.0f));
 	rect->setPositionConstraint(0.0f, 0.0f, 0.0f);
 	rect->getPhysics()->setKinematic(true);
+	rect->getPhysics()->setRestitution(1.0f); 
 	Components.push_back(rect);
 
 	// Left wall
@@ -83,6 +87,7 @@ void Game::Initialize() {
 	rect->setPosition(DirectX::XMFLOAT3(-0.93f, 0.0f, 0.0f));
 	rect->setPositionConstraint(0.0f, 0.0f, 0.0f);
 	rect->getPhysics()->setKinematic(true);
+	rect->getPhysics()->setRestitution(1.0f);
 	Components.push_back(rect);
 
 	// Right wall
@@ -91,6 +96,7 @@ void Game::Initialize() {
 	rect->setPosition(DirectX::XMFLOAT3(0.93f, 0.0f, 0.0f));
 	rect->setPositionConstraint(0.0f, 0.0f, 0.0f);
 	rect->getPhysics()->setKinematic(true);
+	rect->getPhysics()->setRestitution(1.0f); 
 	Components.push_back(rect);
 }
 void Game::CreateBackBuffer() {
