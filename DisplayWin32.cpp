@@ -1,7 +1,10 @@
-#include "DisplayWin32.h"
+﻿#include "DisplayWin32.h"
+#include "Game.h" 
 #include <iostream>
 #include <cstdio>
 
+Game* DisplayWin32::gameInstance = nullptr;
+// Ловят нажатия и другие события
 LRESULT CALLBACK DisplayWin32::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch (msg)
@@ -11,13 +14,34 @@ LRESULT CALLBACK DisplayWin32::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARA
         return 0;
     case WM_KEYDOWN:
     {
-        // Print key codes to the console (matches your standalone example).
-        std::cout << "Key: " << static_cast<unsigned int>(wParam) << std::endl;
+		// Каким-то образом из lParam извлекают данные
+        gameInstance->inputDevice.OnKeyDown({
+            static_cast<unsigned short>((lParam >> 16) & 0xFF), // MakeCode
+            static_cast<unsigned short>((lParam >> 24) & 0xFF), // Flags
+            static_cast<unsigned short>(wParam), // VKey
+            msg 
+			});
         if (static_cast<unsigned int>(wParam) == VK_ESCAPE) {
             PostQuitMessage(0);
         }
         return 0;
     }
+    case WM_KEYUP:
+    {
+        gameInstance->inputDevice.OnKeyUp({
+            static_cast<unsigned short>((lParam >> 16) & 0xFF),
+            static_cast<unsigned short>((lParam >> 24) & 0xFF),
+            static_cast<unsigned short>(wParam),
+            msg
+            });
+        return 0;
+    }
+    case WM_SIZE:
+        //Пока не работает
+        if (wParam != SIZE_MINIMIZED and gameInstance != nullptr) {
+            gameInstance->OnResize();
+        }
+		return 0;
     default:
         return DefWindowProc(hwnd, msg, wParam, lParam);
     }
@@ -71,8 +95,7 @@ DisplayWin32::DisplayWin32()
 
     ShowCursor(true);
 
-    // Create a console so prints to std::cout are visible (useful for GUI subsystem builds).
-    // If a parent console exists AttachConsole will succeed; otherwise AllocConsole creates one.
+
     if (AttachConsole(ATTACH_PARENT_PROCESS) == 0) {
         AllocConsole();
     }

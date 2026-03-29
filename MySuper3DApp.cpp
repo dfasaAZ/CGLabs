@@ -17,5 +17,4 @@ int main()
 {
 	Game gameInstance = Game();
 	gameInstance.Run();
-    std::cout << "Hello World!\n";
 }

@@ -16,10 +16,11 @@ TriangleComponent::TriangleComponent(Game* g, DirectX::XMFLOAT4 points[6])
     for (int i = 0; i < 6; ++i) {
         this->points[i] = points[i];
     }
-	this->Initialize();
+	createConstantBuffer();
+	this->initialize();
 }
 
-void TriangleComponent::Initialize() {
+void TriangleComponent::initialize() {
 	ID3DBlob* vertexBC = nullptr;
 	ID3DBlob* errorVertexCode = nullptr;
 	auto res = D3DCompileFromFile(L"./Shaders/MyVeryFirstShader.hlsl",
@@ -161,10 +162,11 @@ void TriangleComponent::Initialize() {
 
 	if (vertexBC) vertexBC->Release();
 	if (pixelBC) pixelBC->Release();
+	updateConstantBuffer();	
 }
 
-void TriangleComponent::Draw() {
-	
+void TriangleComponent::draw() {
+	ID3D11Buffer* cb = getConstantBuffer();
 	game->context->RSSetState(rastState);
 
 	
@@ -176,6 +178,9 @@ void TriangleComponent::Draw() {
 	viewport.MinDepth = 0;
 	viewport.MaxDepth = 1.0f;
 	game->context->RSSetViewports(1, &viewport);
+
+
+	game->context->VSSetConstantBuffers(0, 1, &cb);
 
 	// хз
 	game->context->IASetInputLayout(layout);
@@ -190,11 +195,11 @@ void TriangleComponent::Draw() {
 	// Рисовать
 	game->context->DrawIndexed(3, 0, 0);
 }
-void TriangleComponent::Update() {
+void TriangleComponent::update() {
 
 }
 
-void TriangleComponent::DestroyResources() {
+void TriangleComponent::destroyResources() {
 	if (rastState) { rastState->Release(); rastState = nullptr; }
 	if (vertexShader) { vertexShader->Release(); vertexShader = nullptr; }
 	if (pixelShader) { pixelShader->Release(); pixelShader = nullptr; }
@@ -203,11 +208,11 @@ void TriangleComponent::DestroyResources() {
 	if (ib) { ib->Release(); ib = nullptr; }
 }
 
-void TriangleComponent::Reload() {
-	DestroyResources();
-	Initialize();
+void TriangleComponent::reload() {
+	destroyResources();
+	initialize();
 }
 
 TriangleComponent::~TriangleComponent() {
-	DestroyResources();
+	destroyResources();
 }

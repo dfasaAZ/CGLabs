@@ -9,9 +9,9 @@
 #include <iostream>
 #include <cmath>
 
-Game::Game()
+Game::Game() :inputDevice(this)
 {
-	//Display = DisplayWin32();
+	Display.setGameInstance(this);
 }
 
 Game::~Game()
@@ -59,13 +59,13 @@ void Game::Run() {
 	MSG msg = {};
 	bool isExitRequested = false;
 
+	// Главный цикл игры
 	while (!isExitRequested) {
 	
 		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-
 		if (msg.message == WM_QUIT) {
 			isExitRequested = true;
 			break;
@@ -88,6 +88,9 @@ void Game::Run() {
 			frameCount = 0;
 		}
 
+		processInput(deltaTime);
+
+
 		if (context) {
 			context->ClearState();
 		}
@@ -101,7 +104,7 @@ void Game::Run() {
 		context->ClearRenderTargetView(rtv, color);
 
 		for (auto component : Components) {
-			component->Draw();
+			component->draw();
 		}
 
 		swapChain->Present(1, 0);
@@ -145,5 +148,35 @@ void Game::PrepareResources() {
 	if (FAILED(res)) {
 		MessageBox(Display.hwnd, L"Failed to create D3D11 device", L"Error", MB_OK);
 		return;
+	}
+}
+void Game::OnResize() {
+	if (context) {
+		context->OMSetRenderTargets(0, nullptr, nullptr);
+	}
+	if (rtv) {
+		rtv->Release();
+		rtv = nullptr;
+	}
+	swapChain->ResizeBuffers(0, Display.clientWidth, Display.clientHeight, DXGI_FORMAT_UNKNOWN, 0);
+	CreateBackBuffer();
+}
+void Game::processInput(float deltaTime) {
+	float speed = 5.0f;
+
+	if (Components.size() > 0) {
+
+		GameComponent* comp = dynamic_cast<GameComponent*>(Components[0]);
+		if (comp) {
+			if (inputDevice.IsKeyDown(Keys::W))  comp->translate(DirectX::XMFLOAT3(0, speed * deltaTime, 0));
+			if (inputDevice.IsKeyDown(Keys::S))  comp->translate(DirectX::XMFLOAT3(0, -speed * deltaTime, 0));
+			if (inputDevice.IsKeyDown(Keys::A))  comp->translate(DirectX::XMFLOAT3(-speed * deltaTime, 0, 0));
+			if (inputDevice.IsKeyDown(Keys::D))  comp->translate(DirectX::XMFLOAT3(speed * deltaTime, 0, 0));
+
+			if (inputDevice.IsKeyDown(Keys::Up))    comp->rotate(DirectX::XMFLOAT3(speed * deltaTime, 0, 0));
+			if (inputDevice.IsKeyDown(Keys::Down))  comp->rotate(DirectX::XMFLOAT3(-speed * deltaTime, 0, 0));
+			if (inputDevice.IsKeyDown(Keys::Left))  comp->rotate(DirectX::XMFLOAT3(0, speed * deltaTime, 0));
+			if (inputDevice.IsKeyDown(Keys::Right)) comp->rotate(DirectX::XMFLOAT3(0, -speed * deltaTime, 0));
+		}
 	}
 }

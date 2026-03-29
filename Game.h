@@ -4,6 +4,7 @@
 #include "GameComponent.h"
 #include <wrl.h>
 #include "TriangleComponent.h"
+#include "InputDevice.h"
 class Game
 {
 private:
@@ -20,9 +21,12 @@ protected:
 	void UpdateInternal();
 	
 	public:
+		void OnResize();
+		void processInput(float deltaTime);
 		DisplayWin32 Display;
 		IDXGISwapChain* swapChain;
 		Microsoft::WRL::ComPtr<ID3D11Device> Device;
+		InputDevice inputDevice;
 		ID3D11DeviceContext* context;
 		std::vector<GameComponent*> Components;
 		TriangleComponent* triangleComponent;

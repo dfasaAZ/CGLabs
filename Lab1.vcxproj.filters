@@ -41,11 +41,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="MyVeryFirstShader.hlsl">
-      <Filter>Source Files</Filter>
-    </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
     <Natvis Include="Delegates.natvis" />
   </ItemGroup>
   <ItemGroup>
@@ -78,5 +73,8 @@
     <None Include="SimpleMath.inl">
       <Filter>Header Files</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="hlsl Shaders\MyVeryFirstShader.hlsl" />
   </ItemGroup>
 </Project>

@@ -40,8 +40,10 @@ public:
 	void AddPressedKey(Keys key);
 	void RemovePressedKey(Keys key);
 	bool IsKeyDown(Keys key);
+	void UpdateTransformations(float deltaTime);
 
-protected:
+
+public:
 	struct KeyboardInputEventArgs {
 		/*
 		 * The "make" scan code (key depression).
@@ -112,6 +114,7 @@ protected:
 	};
 
 	void OnKeyDown(KeyboardInputEventArgs args);
+	void OnKeyUp(KeyboardInputEventArgs args);
 	void OnMouseMove(RawMouseEventArgs args);
 };
 

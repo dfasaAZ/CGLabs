@@ -1,4 +1,4 @@
-//#include "pch.h"
+﻿//#include "pch.h"
 #include "InputDevice.h"
 #include <iostream>
 #include "Game.h"
@@ -37,18 +37,22 @@ InputDevice::~InputDevice()
 
 void InputDevice::OnKeyDown(KeyboardInputEventArgs args)
 {
+	//Эта штука вроде не работает, но пофиг
 	bool Break = args.Flags & 0x01;
 
 	auto key = static_cast<Keys>(args.VKey);
 
 	if (args.MakeCode == 42) key = Keys::LeftShift;
 	if (args.MakeCode == 54) key = Keys::RightShift;
+	if (!keys->count(key))	AddPressedKey(key);
 	
-	if(Break) {
-		if(keys->count(key))	RemovePressedKey(key);
-	} else {
-		if (!keys->count(key))	AddPressedKey(key);
-	}
+}
+void InputDevice::OnKeyUp(KeyboardInputEventArgs args)
+{
+	auto key = static_cast<Keys>(args.VKey);
+	if (args.MakeCode == 42) key = Keys::LeftShift;
+	if (args.MakeCode == 54) key = Keys::RightShift;
+	if(keys->count(key))	RemovePressedKey(key);
 }
 
 void InputDevice::OnMouseMove(RawMouseEventArgs args)

@@ -133,11 +133,6 @@
     <ClCompile Include="TriangleComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="MyVeryFirstShader.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Delegates.h" />
     <ClInclude Include="DisplayWin32.h" />
     <ClInclude Include="Game.h" />
@@ -152,6 +147,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="SimpleMath.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="hlsl Shaders\MyVeryFirstShader.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
