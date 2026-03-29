@@ -26,6 +26,7 @@ private:
 	public:
 		void OnResize();
 		void processInput(float deltaTime);
+		void ballCheck();
 		void spawnBall();
 		DisplayWin32 Display;
 		IDXGISwapChain* swapChain;

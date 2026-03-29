@@ -47,7 +47,7 @@ public:
 	PhysicsComponent* getPhysics();
 	void updatePhysics(float deltaTime);
 	bool checkCollision(GameComponent* other);
-	void resolveCollision(GameComponent* other);
+	virtual void resolveCollision(GameComponent* other)=0;
 
 protected:
 	ID3D11Buffer* getConstantBuffer() { return constantBuffer; }

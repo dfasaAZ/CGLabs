@@ -7,9 +7,9 @@ PongBall::PongBall(Game* game, DirectX::XMFLOAT4 color)
 	setScale(DirectX::XMFLOAT3(BALL_SCALE, BALL_SCALE, 1.0f));
 	getPhysics()->setKinematic(false);
 	getPhysics()->setGravity(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
-	getPhysics()->setRestitution(2.0f); // Полная упругость для отскока
-	getPhysics()->setDrag(0.0f); // Без сопротивления воздуха
-	getPhysics()->setMass(0.1f); // Масса мяча 
+	getPhysics()->setRestitution(2.0f); 
+	getPhysics()->setDrag(0.0f); 
+	getPhysics()->setMass(0.1f); 
 }
 
 PongBall::~PongBall()

@@ -12,6 +12,7 @@ public:
 	void draw() override;
 	void destroyResources() override;
 	void reload() override;
+	void resolveCollision(GameComponent* other) override;
 
 private:
 	ID3D11RasterizerState* rastState;

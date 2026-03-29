@@ -23,12 +23,14 @@ Game::~Game()
 
 void Game::spawnBall()
 {
-	if (ball == nullptr) {
+	if (ball != nullptr) {
+		delete ball;
+	}
 		ball = new PongBall(this, DirectX::XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f));
 		ball->setPosition(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
 		ball->getPhysics()->setVelocity(DirectX::XMFLOAT3(1.0f, 1.0f, 0.0f)); // Начальная скорость мяча
 		Components.push_back(ball);
-	}
+	
 }
 
 void Game::Initialize() {
@@ -144,21 +146,9 @@ void Game::Run() {
 
 		processInput(deltaTime);
 
-		if (ball != nullptr && ball->isOutOfBounds()) {
-			// Find and remove ball from Components
-			for (auto it = Components.begin(); it != Components.end(); ++it) {
-				if (*it == ball) {
-					Components.erase(it);
-					break;
-				}
-			}
-			delete ball;
-			ball = nullptr;
-		}
+		
 
-		if (ball == nullptr) {
-			spawnBall();
-		}
+		
 
 		if (context) {
 			context->ClearState();
@@ -179,6 +169,10 @@ void Game::Run() {
 					Components[i]->resolveCollision(Components[j]);
 				}
 			}
+		}
+		ballCheck();
+		for (auto component : players) {
+			component->getPhysics()->setVelocity(DirectX::XMFLOAT3(0,0,0));
 		}
 		for (auto component : Components) {
 			component->update();
@@ -279,5 +273,21 @@ void Game::processInput(float deltaTime) {
 			if (inputDevice.IsKeyDown(Keys::Left))  comp->rotate(DirectX::XMFLOAT3(0, speed * deltaTime, 0));
 			if (inputDevice.IsKeyDown(Keys::Right)) comp->rotate(DirectX::XMFLOAT3(0, -speed * deltaTime, 0));
 		}
+	}
+}
+void Game::ballCheck() {
+	if (ball != nullptr && ball->isOutOfBounds()) {
+		// Find and remove ball from Components
+		for (auto it = Components.begin(); it != Components.end(); ++it) {
+			if (*it == ball) {
+				Components.erase(it);
+				break;
+			}
+		}
+		delete ball;
+		ball = nullptr;
+	}
+	if (ball == nullptr) {
+		spawnBall();
 	}
 }

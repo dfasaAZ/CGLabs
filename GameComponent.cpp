@@ -78,7 +78,7 @@ void GameComponent::translate(DirectX::XMFLOAT3 delta) {
 		position.x + (delta.x * positonConstraint.x),
 		position.y + (delta.y * positonConstraint.y),
 		position.z + (delta.z * positonConstraint.z)));
-	printf("Position: (%f, %f, %f)\n", position.x, position.y, position.z);
+	//printf("Position: (%f, %f, %f)\n", position.x, position.y, position.z);
 }
 
 void GameComponent::rotate(DirectX::XMFLOAT3 delta) {

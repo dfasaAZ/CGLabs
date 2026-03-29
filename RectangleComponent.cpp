@@ -157,6 +157,18 @@ void RectangleComponent::reload() {
 	initialize();
 }
 
+void RectangleComponent::resolveCollision(GameComponent* other)
+{
+	GameComponent::resolveCollision(other);
+	DirectX::XMFLOAT3 velocity = getPhysics()->getVelocity();
+	velocity.y *= 1.2f;
+	printf("Collision resolved! New velocity: (%f, %f, %f)\n", velocity.x, velocity.y, velocity.z);
+	getPhysics()->setVelocity(velocity);
+	velocity = other->getPhysics()->getVelocity();
+	velocity.y *= 1.2f;
+	other->getPhysics()->setVelocity(velocity);
+}
+
 RectangleComponent::~RectangleComponent() {
 	destroyResources();
 }
