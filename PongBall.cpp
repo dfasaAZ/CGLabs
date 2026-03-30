@@ -19,9 +19,10 @@ PongBall::~PongBall()
 void PongBall::update()
 {
 	RectangleComponent::update();
+	this->rotate(DirectX::XMFLOAT3(0.0f, 0.0f, 5.0f));
 }
-
-bool PongBall::isOutOfBounds() const
+//Возвращает 1, если мяч в воротах первого, 2 - второго,0 - на поле
+int PongBall::isOutOfBounds() const
 {
 	if (game->players.size() < 2) {
 		return true;
@@ -32,9 +33,14 @@ bool PongBall::isOutOfBounds() const
 	float player2Y = game->players[1]->getPosition().y;
 
 	// Ball is out of bounds if below player 1 (first element) or above player 2 (second element)
-	if (ballY < player1Y || ballY > player2Y) {
-		return true;
+	if (ballY < player1Y)
+	{
+		return 1;
+	}
+	else 
+	if(ballY > player2Y) {
+		return 2;
 	}
 
-	return false;
+	return 0;
 }

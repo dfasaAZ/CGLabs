@@ -26,12 +26,14 @@ void Game::spawnBall()
 	if (ball != nullptr) {
 		delete ball;
 	}
-		ball = new PongBall(this, DirectX::XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f));
-		ball->setPosition(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
-		ball->getPhysics()->setVelocity(DirectX::XMFLOAT3(1.0f, 1.0f, 0.0f)); // Начальная скорость мяча
-		Components.push_back(ball);
-	
+	ball = new PongBall(this, DirectX::XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f));
+	ball->setPosition(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
+	float randomY = (rand() % 2 == 0 ? 1.0f : -1.0f) * (0.5f + (rand() / (float)RAND_MAX) * 0.5f);
+	ball->getPhysics()->setVelocity(DirectX::XMFLOAT3(randomY*-1, randomY, 0.0f)); // Начальная скорость мяча
+	Components.push_back(ball);
+
 }
+
 
 void Game::Initialize() {
 	
@@ -85,8 +87,8 @@ void Game::Initialize() {
 
 	// Left wall
 	rect = new RectangleComponent(this, DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f));
-	rect->setScale(DirectX::XMFLOAT3(0.065f, 2.0f, 1.0f));
-	rect->setPosition(DirectX::XMFLOAT3(-0.93f, 0.0f, 0.0f));
+	rect->setScale(DirectX::XMFLOAT3(0.035f, 2.0f, 1.0f));
+	rect->setPosition(DirectX::XMFLOAT3(-1.0f, 0.0f, 0.0f));
 	rect->setPositionConstraint(0.0f, 0.0f, 0.0f);
 	rect->getPhysics()->setKinematic(true);
 	rect->getPhysics()->setRestitution(1.0f);
@@ -94,8 +96,8 @@ void Game::Initialize() {
 
 	// Right wall
 	rect = new RectangleComponent(this, DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f));
-	rect->setScale(DirectX::XMFLOAT3(0.065f, 2.0f, 1.0f));
-	rect->setPosition(DirectX::XMFLOAT3(0.93f, 0.0f, 0.0f));
+	rect->setScale(DirectX::XMFLOAT3(0.035f, 2.0f, 1.0f));
+	rect->setPosition(DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f));
 	rect->setPositionConstraint(0.0f, 0.0f, 0.0f);
 	rect->getPhysics()->setKinematic(true);
 	rect->getPhysics()->setRestitution(1.0f); 
@@ -171,6 +173,8 @@ void Game::Run() {
 			}
 		}
 		ballCheck();
+
+		//Костыль для отскоков
 		for (auto component : players) {
 			component->getPhysics()->setVelocity(DirectX::XMFLOAT3(0,0,0));
 		}
@@ -276,16 +280,27 @@ void Game::processInput(float deltaTime) {
 	}
 }
 void Game::ballCheck() {
-	if (ball != nullptr && ball->isOutOfBounds()) {
-		// Find and remove ball from Components
-		for (auto it = Components.begin(); it != Components.end(); ++it) {
-			if (*it == ball) {
-				Components.erase(it);
-				break;
+	if (ball != nullptr) {
+		int ballScored = ball->isOutOfBounds();
+		if (ballScored) {
+			// Удаляем
+			for (auto it = Components.begin(); it != Components.end(); ++it) {
+				if (*it == ball) {
+					Components.erase(it);
+					break;
+				}
+			}
+			delete ball;
+			ball = nullptr;
+			if (ballScored == 1) {
+				player2Score++;
+				std::wcout << L"Player 2 scored! Score: " << player1Score << " - " << player2Score << std::endl;
+			}
+			else if (ballScored == 2) {
+				player1Score++;
+				std::wcout << L"Player 1 scored! Score: " << player1Score << " - " << player2Score << std::endl;
 			}
 		}
-		delete ball;
-		ball = nullptr;
 	}
 	if (ball == nullptr) {
 		spawnBall();

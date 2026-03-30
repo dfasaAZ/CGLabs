@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "DisplayWin32.h"
 #include <vector>
 #include "GameComponent.h"
@@ -28,16 +28,21 @@ private:
 		void processInput(float deltaTime);
 		void ballCheck();
 		void spawnBall();
+		//Мишура
 		DisplayWin32 Display;
 		IDXGISwapChain* swapChain;
 		Microsoft::WRL::ComPtr<ID3D11Device> Device;
 		InputDevice inputDevice;
 		ID3D11DeviceContext* context;
+		ID3D11RenderTargetView* rtv;
+
+		//Игра
 		std::vector<GameComponent*> Components;
 		std::vector<GameComponent*> players;
 		TriangleComponent* triangleComponent;
 		PongBall* ball;
-		ID3D11RenderTargetView* rtv;
+		int player1Score = 0;
+		int player2Score = 0;
 
 	Game();
 	~Game();

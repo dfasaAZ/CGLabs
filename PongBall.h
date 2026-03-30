@@ -8,7 +8,7 @@ public:
 	~PongBall();
 
 	void update() override;
-	bool isOutOfBounds() const;
+	int isOutOfBounds() const;
 
 private:
 	static constexpr float BALL_SCALE = 0.05f;
