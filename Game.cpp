@@ -10,6 +10,8 @@
 #include <cmath>
 #include "RectangleComponent.h"
 #include "PongBall.h"
+#include "CubeComponent.h"
+#include "SphereComponent.h"
 
 Game::Game() :inputDevice(this)
 {
@@ -41,7 +43,7 @@ void Game::Initialize() {
 	CreateBackBuffer();
 
 	if (context && rtv) {
-		context->OMSetRenderTargets(1, &rtv, nullptr);
+		BindDepthBuffer();
 	}
 	//Для нижней стороны
 	RectangleComponent* rect = new RectangleComponent(this, DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
@@ -127,6 +129,14 @@ void Game::Initialize() {
 	rect->getPhysics()->setKinematic(true);
 	rect->getPhysics()->setRestitution(1.0f);
 	Components.push_back(rect);
+
+	CubeComponent* cube = new CubeComponent(this, DirectX::XMFLOAT4(0, 1, 0, 1), 0.5f);
+	cube->setPosition(-10.0f, 0.0f, 0);
+	Components.push_back(cube);
+
+	SphereComponent* sphere = new SphereComponent(this, DirectX::XMFLOAT4(0, 1, 0, 1), 0.3f);
+	sphere->setPosition(10.0f, 0, 0);
+	Components.push_back(sphere);
 }
 void Game::CreateBackBuffer() {
 	ID3D11Texture2D* backTex;
@@ -144,7 +154,7 @@ void Game::Run() {
 
 	// Главный цикл игры
 	while (!isExitRequested) {
-	
+		
 		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
@@ -184,10 +194,12 @@ void Game::Run() {
 		if (context && rtv) {
 			context->OMSetRenderTargets(1, &rtv, nullptr);
 		}
-
+		//Красная моргалка
 		float red = fmodf(totalTime, 1.0f);
 		float color[] = { red, 0.1f, 0.1f, 1.0f };
 		context->ClearRenderTargetView(rtv, color);
+
+		context->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 		
 		viewportFromDisplay();
 		for (size_t i = 0; i < Components.size(); ++i) {
@@ -261,6 +273,7 @@ void Game::PrepareResources() {
 		MessageBox(Display.hwnd, L"Failed to create D3D11 device", L"Error", MB_OK);
 		return;
 	}
+	CreateDepthBuffer();
 }
 void Game::OnResize() {
 	if (context) {
@@ -333,4 +346,49 @@ void Game::ballCheck() {
 	if (ball == nullptr) {
 		spawnBall();
 	}
+}
+void Game::CreateDepthBuffer()
+{
+	// Всякие непонятные свойства текстуры для буфера глубины
+	D3D11_TEXTURE2D_DESC depthTexDesc = {};
+	depthTexDesc.Width = Display.clientWidth;           
+	depthTexDesc.Height = Display.clientHeight;         
+	depthTexDesc.MipLevels = 1;                         // хз
+	depthTexDesc.ArraySize = 1;                         
+	depthTexDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT; //хз
+	depthTexDesc.SampleDesc.Count = 1;                  // хз
+	depthTexDesc.SampleDesc.Quality = 0;
+	depthTexDesc.Usage = D3D11_USAGE_DEFAULT;           // хз
+	depthTexDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;  // хз
+	depthTexDesc.CPUAccessFlags = 0;                    // хз
+	depthTexDesc.MiscFlags = 0;
+
+	// тут даннык глубины
+	HRESULT hr = Device->CreateTexture2D(&depthTexDesc, nullptr, &depthStencilBuffer);
+	if (FAILED(hr))
+	{
+		MessageBox(Display.hwnd, L"Failed to create depth stencil texture", L"Error", MB_OK);
+		return;
+	}
+
+	// ещё какие-то настроечки для буфера глубины
+	D3D11_DEPTH_STENCIL_VIEW_DESC depthViewDesc = {};
+	depthViewDesc.Format = depthTexDesc.Format;
+	depthViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D; 
+	depthViewDesc.Texture2D.MipSlice = 0;
+
+	// записать данные глубины в буфер глубины
+	hr = Device->CreateDepthStencilView(depthStencilBuffer, &depthViewDesc, &depthStencilView);
+	if (FAILED(hr))
+	{
+		MessageBox(Display.hwnd, L"Failed to create depth stencil view", L"Error", MB_OK);
+		depthStencilBuffer->Release();
+		depthStencilBuffer = nullptr;
+		return;
+	}
+}
+
+void Game::BindDepthBuffer()
+{
+	context->OMSetRenderTargets(1, &rtv, depthStencilView);
 }

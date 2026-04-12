@@ -123,36 +123,49 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CubeComponent.cpp" />
     <ClCompile Include="Delegates.cpp" />
     <ClCompile Include="DisplayWin32.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameComponent.cpp" />
     <ClCompile Include="InputDevice.cpp" />
+    <ClCompile Include="MeshComponent.cpp" />
     <ClCompile Include="MySuper3DApp.cpp" />
     <ClCompile Include="PhysicsComponent.cpp" />
     <ClCompile Include="PongBall.cpp" />
     <ClCompile Include="RectangleComponent.cpp" />
     <ClCompile Include="SimpleMath.cpp" />
+    <ClCompile Include="SphereComponent.cpp" />
     <ClCompile Include="TriangleComponent.cpp" />
+    <ClCompile Include="VertexTypes.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CubeComponent.h" />
     <ClInclude Include="Delegates.h" />
     <ClInclude Include="DisplayWin32.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameComponent.h" />
     <ClInclude Include="InputDevice.h" />
     <ClInclude Include="Keys.h" />
+    <ClInclude Include="MeshComponent.h" />
     <ClInclude Include="PhysicsComponent.h" />
     <ClInclude Include="PongBall.h" />
     <ClInclude Include="RectangleComponent.h" />
     <ClInclude Include="SimpleMath.h" />
+    <ClInclude Include="SphereComponent.h" />
     <ClInclude Include="TriangleComponent.h" />
+    <ClInclude Include="VertexTypes.h" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Delegates.natvis" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SimpleMath.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shaders\Mesh3DShader.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

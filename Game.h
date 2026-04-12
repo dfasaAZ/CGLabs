@@ -28,6 +28,11 @@ private:
 		void processInput(float deltaTime);
 		void ballCheck();
 		void spawnBall();
+
+		//Глубина
+		void CreateDepthBuffer();
+		void BindDepthBuffer();
+
 		//Мишура
 		DisplayWin32 Display;
 		IDXGISwapChain* swapChain;
@@ -35,6 +40,8 @@ private:
 		InputDevice inputDevice;
 		ID3D11DeviceContext* context;
 		ID3D11RenderTargetView* rtv;
+		ID3D11Texture2D* depthStencilBuffer = nullptr;
+		ID3D11DepthStencilView* depthStencilView = nullptr;
 
 		//Игра
 		std::vector<GameComponent*> Components;

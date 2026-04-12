@@ -148,8 +148,20 @@ void GameComponent::updateConstantBuffer() {
 
 	float aspect = static_cast<float>(game->Display.clientWidth) /
 		static_cast<float>(game->Display.clientHeight);
-	DirectX::XMMATRIX proj = DirectX::XMMatrixOrthographicOffCenterLH(-aspect, aspect, -1.0f, 1.0f, 0.1f, 100.0f);
-	DirectX::XMMATRIX view = DirectX::XMMatrixIdentity();
+
+	// Perspective projection instead of orthographic
+	DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovLH(
+		DirectX::XMConvertToRadians(60.0f),  // 60° field of view
+		aspect,                               // Aspect ratio
+		0.1f,                                 // Near plane
+		100.0f);                              // Far plane
+
+	// Camera positioned at (0, 0, -5) looking at origin
+	DirectX::XMVECTOR eye = DirectX::XMVectorSet(0.0f, 0.0f, -5.0f, 1.0f);
+	DirectX::XMVECTOR at = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+	DirectX::XMVECTOR up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+	DirectX::XMMATRIX view = DirectX::XMMatrixLookAtLH(eye, at, up);
+
 	cb.worldViewProj = DirectX::XMMatrixTranspose(world * view * proj);
 
 	game->context->UpdateSubresource(constantBuffer, 0, nullptr, &cb, 0, 0);
