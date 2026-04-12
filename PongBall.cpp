@@ -24,23 +24,24 @@ void PongBall::update()
 //Возвращает 1, если мяч в воротах первого, 2 - второго,0 - на поле
 int PongBall::isOutOfBounds() const
 {
-	if (game->players.size() < 2) {
+	if (game->players.size() < 4) {
 		return true;
 	}
 
 	float ballY = getPosition().y;
-	float player1Y = game->players[0]->getPosition().y;
-	float player2Y = game->players[1]->getPosition().y;
+	// Первые два игрока (0 и 1) - нижняя команда, вторые два (2 и 3) - верхняя команда
+	float player1Y = game->players[0]->getPosition().y; 
+	float player2Y = game->players[2]->getPosition().y;  
 
 	// Ball is out of bounds if below player 1 (first element) or above player 2 (second element)
 	if (ballY < player1Y)
 	{
 		return 1;
 	}
-	else 
-	if(ballY > player2Y) {
-		return 2;
-	}
+	else
+		if (ballY > player2Y) {
+			return 2;
+		}
 
 	return 0;
 }

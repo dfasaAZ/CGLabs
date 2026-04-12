@@ -43,52 +43,77 @@ void Game::Initialize() {
 	if (context && rtv) {
 		context->OMSetRenderTargets(1, &rtv, nullptr);
 	}
-	//Этот для игрока
+	//Для нижней стороны (две ракетки)
 	RectangleComponent* rect = new RectangleComponent(this, DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
-	rect->setScale(DirectX::XMFLOAT3(0.65f, 0.065f, 1.0f));
-	rect->setPosition(DirectX::XMFLOAT3(0.0f, -1.0f, 0.0f));
+	rect->setScale(DirectX::XMFLOAT3(0.325f, 0.0325f, 1.0f));
+	rect->setPosition(DirectX::XMFLOAT3(-0.5f, -1.0f, 0.0f));
 	rect->setPositionConstraint(1.0f, 0.0f, 0.0f);
 	rect->setRotationConstraint(0.0f, 0.0f, 0.0f);
 	rect->getPhysics()->setKinematic(false);
 	rect->getPhysics()->setGravity(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
-	rect->getPhysics()->setRestitution(1.0f); 
+	rect->getPhysics()->setRestitution(1.0f);
+	Components.push_back(rect);
+	players.push_back(rect);
+
+	rect = new RectangleComponent(this, DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
+	rect->setScale(DirectX::XMFLOAT3(0.325f, 0.0325f, 1.0f));
+	rect->setPosition(DirectX::XMFLOAT3(0.5f, -1.0f, 0.0f));
+	rect->setPositionConstraint(1.0f, 0.0f, 0.0f);
+	rect->setRotationConstraint(0.0f, 0.0f, 0.0f);
+	rect->getPhysics()->setKinematic(false);
+	rect->getPhysics()->setGravity(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
+	rect->getPhysics()->setRestitution(1.0f);
+	Components.push_back(rect);
+	players.push_back(rect);
+
+	//Для верхней стороны (две ракетки)
+	rect = new RectangleComponent(this, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
+	rect->setScale(DirectX::XMFLOAT3(0.325f, 0.0325f, 1.0f));
+	rect->setPosition(DirectX::XMFLOAT3(-0.5f, 1.0f, 0.0f));
+	rect->setPositionConstraint(1.0f, 0.0f, 0.0f);
+	rect->setRotationConstraint(0.0f, 0.0f, 0.0f);
+	rect->getPhysics()->setKinematic(false);
+	rect->getPhysics()->setGravity(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
+	rect->getPhysics()->setRestitution(1.0f);
 	Components.push_back(rect);
 	players.push_back(rect);
 
 	rect = new RectangleComponent(this, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
-	rect->setScale(DirectX::XMFLOAT3(0.65f, 0.065f, 1.0f));
-	rect->setPosition(DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f));
+	rect->setScale(DirectX::XMFLOAT3(0.325f, 0.0325f, 1.0f));
+	rect->setPosition(DirectX::XMFLOAT3(0.5f, 1.0f, 0.0f));
 	rect->setPositionConstraint(1.0f, 0.0f, 0.0f);
 	rect->setRotationConstraint(0.0f, 0.0f, 0.0f);
 	rect->getPhysics()->setKinematic(false);
 	rect->getPhysics()->setGravity(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
-	rect->getPhysics()->setRestitution(1.0f); 
+	rect->getPhysics()->setRestitution(1.0f);
 	Components.push_back(rect);
 	players.push_back(rect);
+
+	
 
 	// Стены
 	// Top wall
 	rect = new RectangleComponent(this, DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f));
-	rect->setScale(DirectX::XMFLOAT3(2.0f, 0.065f, 1.0f));
-	rect->setPosition(DirectX::XMFLOAT3(0.0f, 1.05f, 0.0f));
+	rect->setScale(DirectX::XMFLOAT3(2.5f, 0.065f, 1.0f));
+	rect->setPosition(DirectX::XMFLOAT3(0.0f, 1.25f, 0.0f));
 	rect->setPositionConstraint(0.0f, 0.0f, 0.0f);
 	rect->getPhysics()->setKinematic(true);
-	rect->getPhysics()->setRestitution(1.0f); 
+	rect->getPhysics()->setRestitution(1.0f);
 	Components.push_back(rect);
 
 	// Bottom wall
 	rect = new RectangleComponent(this, DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f));
-	rect->setScale(DirectX::XMFLOAT3(2.0f, 0.065f, 1.0f));
-	rect->setPosition(DirectX::XMFLOAT3(0.0f, -1.05f, 0.0f));
+	rect->setScale(DirectX::XMFLOAT3(2.5f, 0.065f, 1.0f));
+	rect->setPosition(DirectX::XMFLOAT3(0.0f, -1.25f, 0.0f));
 	rect->setPositionConstraint(0.0f, 0.0f, 0.0f);
 	rect->getPhysics()->setKinematic(true);
-	rect->getPhysics()->setRestitution(1.0f); 
+	rect->getPhysics()->setRestitution(1.0f);
 	Components.push_back(rect);
 
 	// Left wall
 	rect = new RectangleComponent(this, DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f));
-	rect->setScale(DirectX::XMFLOAT3(0.035f, 2.0f, 1.0f));
-	rect->setPosition(DirectX::XMFLOAT3(-1.0f, 0.0f, 0.0f));
+	rect->setScale(DirectX::XMFLOAT3(0.135f, 2.5f, 1.0f));
+	rect->setPosition(DirectX::XMFLOAT3(-1.05f, 0.0f, 0.0f));
 	rect->setPositionConstraint(0.0f, 0.0f, 0.0f);
 	rect->getPhysics()->setKinematic(true);
 	rect->getPhysics()->setRestitution(1.0f);
@@ -96,11 +121,11 @@ void Game::Initialize() {
 
 	// Right wall
 	rect = new RectangleComponent(this, DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f));
-	rect->setScale(DirectX::XMFLOAT3(0.035f, 2.0f, 1.0f));
-	rect->setPosition(DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f));
+	rect->setScale(DirectX::XMFLOAT3(0.135f, 2.5f, 1.0f));
+	rect->setPosition(DirectX::XMFLOAT3(1.05f, 0.0f, 0.0f));
 	rect->setPositionConstraint(0.0f, 0.0f, 0.0f);
 	rect->getPhysics()->setKinematic(true);
-	rect->getPhysics()->setRestitution(1.0f); 
+	rect->getPhysics()->setRestitution(1.0f);
 	Components.push_back(rect);
 }
 void Game::CreateBackBuffer() {
@@ -251,27 +276,30 @@ void Game::OnResize() {
 void Game::processInput(float deltaTime) {
 	float speed = 5.0f;
 
-	if (Components.size() > 0) {
+	if (players.size() >= 4) {
+		struct ControlScheme {
+			int playerIndex;
+			Keys up, down, left, right;
+		};
 
-		GameComponent* comp = dynamic_cast<GameComponent*>(Components[0]);
-		if (comp) {
-			if (inputDevice.IsKeyDown(Keys::W))  comp->translate(DirectX::XMFLOAT3(0, speed * deltaTime, 0));
-			if (inputDevice.IsKeyDown(Keys::S))  comp->translate(DirectX::XMFLOAT3(0, -speed * deltaTime, 0));
-			if (inputDevice.IsKeyDown(Keys::A))  comp->translate(DirectX::XMFLOAT3(-speed * deltaTime, 0, 0));
-			if (inputDevice.IsKeyDown(Keys::D))  comp->translate(DirectX::XMFLOAT3(speed * deltaTime, 0, 0));
+		ControlScheme schemes[] = {
+			{0, Keys::None, Keys::None, Keys::W, Keys::E},        // Нижняя левая
+			{1, Keys::None, Keys::None, Keys::S, Keys::D},        // Нижняя правая
+			{2, Keys::None, Keys::None, Keys::I, Keys::O},        // Верхняя левая
+			{3, Keys::None, Keys::None, Keys::K, Keys::L}		 // Верхняя правая
+		};
 
-			if (inputDevice.IsKeyDown(Keys::Up))    comp->rotate(DirectX::XMFLOAT3(speed * deltaTime, 0, 0));
-			if (inputDevice.IsKeyDown(Keys::Down))  comp->rotate(DirectX::XMFLOAT3(-speed * deltaTime, 0, 0));
-			if (inputDevice.IsKeyDown(Keys::Left))  comp->rotate(DirectX::XMFLOAT3(0, speed * deltaTime, 0));
-			if (inputDevice.IsKeyDown(Keys::Right)) comp->rotate(DirectX::XMFLOAT3(0, -speed * deltaTime, 0));
-		}
-		comp = dynamic_cast<GameComponent*>(Components[1]);
-		if (comp) {
-			if (inputDevice.IsKeyDown(Keys::I))  comp->translate(DirectX::XMFLOAT3(0, speed * deltaTime, 0));
-			if (inputDevice.IsKeyDown(Keys::K))  comp->translate(DirectX::XMFLOAT3(0, -speed * deltaTime, 0));
-			if (inputDevice.IsKeyDown(Keys::J))  comp->translate(DirectX::XMFLOAT3(-speed * deltaTime, 0, 0));
-			if (inputDevice.IsKeyDown(Keys::L))  comp->translate(DirectX::XMFLOAT3(speed * deltaTime, 0, 0));
+		for (const auto& scheme : schemes) {
+			GameComponent* comp = dynamic_cast<GameComponent*>(players[scheme.playerIndex]);
+			if (!comp) continue;
 
+			// Вертикальное и горизонтальное перемещение
+			if (inputDevice.IsKeyDown(scheme.up))    comp->translate(DirectX::XMFLOAT3(0, speed * deltaTime, 0));
+			if (inputDevice.IsKeyDown(scheme.down))  comp->translate(DirectX::XMFLOAT3(0, -speed * deltaTime, 0));
+			if (inputDevice.IsKeyDown(scheme.left))  comp->translate(DirectX::XMFLOAT3(-speed * deltaTime, 0, 0));
+			if (inputDevice.IsKeyDown(scheme.right)) comp->translate(DirectX::XMFLOAT3(speed * deltaTime, 0, 0));
+
+			// Поворот
 			if (inputDevice.IsKeyDown(Keys::Up))    comp->rotate(DirectX::XMFLOAT3(speed * deltaTime, 0, 0));
 			if (inputDevice.IsKeyDown(Keys::Down))  comp->rotate(DirectX::XMFLOAT3(-speed * deltaTime, 0, 0));
 			if (inputDevice.IsKeyDown(Keys::Left))  comp->rotate(DirectX::XMFLOAT3(0, speed * deltaTime, 0));
