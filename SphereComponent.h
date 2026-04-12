@@ -10,6 +10,8 @@ public:
         uint32_t stacks = 16);
     virtual ~SphereComponent() = default;
 
+    virtual void update() override;
+
     void setRadius(float radius);
     float getRadius() const { return sphereRadius; }
 

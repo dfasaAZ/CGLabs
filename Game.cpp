@@ -131,11 +131,11 @@ void Game::Initialize() {
 	Components.push_back(rect);
 
 	CubeComponent* cube = new CubeComponent(this, DirectX::XMFLOAT4(0, 1, 0, 1), 0.5f);
-	cube->setPosition(-10.0f, 0.0f, 0);
+	cube->setPosition(-0.0f, 0.0f, 2.0f);
 	Components.push_back(cube);
 
 	SphereComponent* sphere = new SphereComponent(this, DirectX::XMFLOAT4(0, 1, 0, 1), 0.3f);
-	sphere->setPosition(10.0f, 0, 0);
+	sphere->setPosition(1.0f, 0, 2.0f);
 	Components.push_back(sphere);
 }
 void Game::CreateBackBuffer() {

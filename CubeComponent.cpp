@@ -67,3 +67,9 @@ void CubeComponent::setSize(float size)
     cubeSize = size;
     generateMesh();
 }
+void CubeComponent::update()
+{
+    MeshComponent::update();
+
+    this->rotate(DirectX::XMFLOAT3(0.01f, 0.0f, 0.0f));
+}

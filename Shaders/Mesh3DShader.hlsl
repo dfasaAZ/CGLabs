@@ -25,14 +25,17 @@ PSInput VSMain(VSInput input)
 {
     PSInput output;
     
-    float4 worldPos = mul(float4(input.position, 1.0f), world);
-    output.position = mul(worldPos, worldViewProj);
-    output.worldPos = worldPos.xyz;
+    // Transform position to world space
+    float4 worldPosition = mul(float4(input.position, 1.0f), world);
+    output.worldPos = worldPosition.xyz;
     
-    // Transform normal to world space
+    // Transform normal to world space (use world matrix for direction vectors)
     output.normal = mul(input.normal, (float3x3) world);
     
-    // Simple directional lighting
+    // Transform position to clip space
+    output.position = mul(float4(input.position, 1.0f), worldViewProj);
+    
+     // Simple directional lighting
     float3 lightDir = normalize(float3(1.0f, 1.0f, 1.0f));
     float3 normal = normalize(output.normal);
     

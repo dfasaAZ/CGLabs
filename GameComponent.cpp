@@ -5,6 +5,7 @@
 GameComponent::GameComponent(Game* g) : game(g),
 	position(0.0f, 0.0f, 0.0f),
 	rotation(0.0f, 0.0f, 0.0f),
+	quaternion(0.0f, 0.0f, 0.0f, 1.0f),
 	scale(1.0f, 1.0f, 1.0f),
 	constantBuffer(nullptr),
 	vb(nullptr),
@@ -149,14 +150,12 @@ void GameComponent::updateConstantBuffer() {
 	float aspect = static_cast<float>(game->Display.clientWidth) /
 		static_cast<float>(game->Display.clientHeight);
 
-	// Perspective projection instead of orthographic
 	DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovLH(
 		DirectX::XMConvertToRadians(60.0f),  // 60° field of view
 		aspect,                               // Aspect ratio
 		0.1f,                                 // Near plane
 		100.0f);                              // Far plane
 
-	// Camera positioned at (0, 0, -5) looking at origin
 	DirectX::XMVECTOR eye = DirectX::XMVectorSet(0.0f, 0.0f, -5.0f, 1.0f);
 	DirectX::XMVECTOR at = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 	DirectX::XMVECTOR up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
@@ -249,4 +248,80 @@ ID3D11Buffer* GameComponent::createIndexBuffer(const void* data, UINT byteWidth)
 		return buffer;
 	}
 	return nullptr;
+}
+
+void GameComponent::setRotation(const DirectX::XMFLOAT4& quat) {
+	this->quaternion = quat;
+	updateConstantBuffer();
+}
+
+void GameComponent::setRotationEuler(const DirectX::XMFLOAT3& euler) {
+	// Convert Euler angles to quaternion (pitch, yaw, roll order)
+	DirectX::XMVECTOR eulerVec = DirectX::XMVectorSet(euler.x, euler.y, euler.z, 0.0f);
+	DirectX::XMVECTOR quatVec = DirectX::XMQuaternionRotationRollPitchYawFromVector(eulerVec);
+	DirectX::XMStoreFloat4(&quaternion, quatVec);
+	updateConstantBuffer();
+}
+
+DirectX::XMFLOAT4 GameComponent::getRotationQuat() const {
+	return quaternion;
+}
+
+void GameComponent::rotate(const DirectX::XMFLOAT4& deltaQuat) {
+	// Convert delta quaternion to angle-axis representation
+	DirectX::XMVECTOR deltaQ = DirectX::XMLoadFloat4(&deltaQuat);
+
+	// Get the angle and axis from the quaternion
+	float angle;
+	DirectX::XMVECTOR axis;
+	DirectX::XMQuaternionToAxisAngle(&axis, &angle, deltaQ);
+
+	// Extract axis components
+	DirectX::XMFLOAT3 axisVec;
+	DirectX::XMStoreFloat3(&axisVec, axis);
+
+	// Apply rotation constraints to the axis components
+	axisVec.x *= rotationConstraint.x;
+	axisVec.y *= rotationConstraint.y;
+	axisVec.z *= rotationConstraint.z;
+
+	// Normalize the constrained axis
+	DirectX::XMVECTOR constrainedAxis = DirectX::XMLoadFloat3(&axisVec);
+	float lengthSq = DirectX::XMVectorGetX(DirectX::XMVector3LengthSq(constrainedAxis));
+
+	// If the axis isn't zero, normalize and create a new constrained quaternion
+	if (lengthSq > 0.0001f) {
+		constrainedAxis = DirectX::XMVector3Normalize(constrainedAxis);
+		DirectX::XMVECTOR constrainedQuat = DirectX::XMQuaternionRotationAxis(constrainedAxis, angle);
+
+		// Apply rotation
+		DirectX::XMVECTOR current = DirectX::XMLoadFloat4(&quaternion);
+		DirectX::XMVECTOR result = DirectX::XMQuaternionMultiply(constrainedQuat, current);
+		result = DirectX::XMQuaternionNormalize(result);
+		DirectX::XMStoreFloat4(&quaternion, result);
+		updateConstantBuffer();
+	}
+}
+
+void GameComponent::rotateEuler(const DirectX::XMFLOAT3& deltaEuler) {
+	// Apply rotation constraints to the delta
+	DirectX::XMFLOAT3 constrainedDelta;
+	constrainedDelta.x = deltaEuler.x * rotationConstraint.x;
+	constrainedDelta.y = deltaEuler.y * rotationConstraint.y;
+	constrainedDelta.z = deltaEuler.z * rotationConstraint.z;
+
+	// If all constraints are zero, skip rotation
+	if (constrainedDelta.x == 0.0f && constrainedDelta.y == 0.0f && constrainedDelta.z == 0.0f)
+		return;
+
+	// Convert constrained delta Euler to quaternion
+	DirectX::XMVECTOR deltaVec = DirectX::XMVectorSet(constrainedDelta.x, constrainedDelta.y, constrainedDelta.z, 0.0f);
+	DirectX::XMVECTOR deltaQuat = DirectX::XMQuaternionRotationRollPitchYawFromVector(deltaVec);
+
+	// Apply rotation
+	DirectX::XMVECTOR current = DirectX::XMLoadFloat4(&quaternion);
+	DirectX::XMVECTOR result = DirectX::XMQuaternionMultiply(deltaQuat, current);
+	result = DirectX::XMQuaternionNormalize(result);
+	DirectX::XMStoreFloat4(&quaternion, result);
+	updateConstantBuffer();
 }
