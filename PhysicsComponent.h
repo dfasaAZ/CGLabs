@@ -49,10 +49,8 @@ public:
 	// AABB Collision resolution - prevents overlap
 	void resolveAABBCollision(
 		PhysicsComponent* other,
-		DirectX::XMFLOAT3& thisPosition,
-		const DirectX::XMFLOAT3& thisScale,
-		DirectX::XMFLOAT3& otherPosition,
-		const DirectX::XMFLOAT3& otherScale);
+		GameComponent* thisComponent,
+		GameComponent* otherComponent);
 
 	DirectX::XMFLOAT3 getAABBMin(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& scale) const;
 	DirectX::XMFLOAT3 getAABBMax(const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& scale) const;

@@ -131,8 +131,8 @@ void GameComponent::resolveCollision(GameComponent* other) {
 	if (!physics || !other || !other->physics) return;
 	physics->resolveAABBCollision(
 		other->physics,
-		position, scale,
-		other->position, other->scale);
+		this,
+		other);
 	updateConstantBuffer();
 	other->updateConstantBuffer();
 }

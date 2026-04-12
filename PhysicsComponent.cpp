@@ -1,4 +1,4 @@
-#include "PhysicsComponent.h"
+﻿#include "PhysicsComponent.h"
 #include "GameComponent.h"
 #include <cmath>
 #include <algorithm>
@@ -136,12 +136,15 @@ bool PhysicsComponent::checkAABBCollision(
 
 void PhysicsComponent::resolveAABBCollision(
 	PhysicsComponent* other,
-	DirectX::XMFLOAT3& thisPosition,
-	const DirectX::XMFLOAT3& thisScale,
-	DirectX::XMFLOAT3& otherPosition,
-	const DirectX::XMFLOAT3& otherScale) {
+	GameComponent* thisComponent,
+	GameComponent* otherComponent) {
 
-	if (!other) return;
+	if (!other || !thisComponent || !otherComponent) return;
+
+	DirectX::XMFLOAT3 thisPosition = thisComponent->getPosition();
+	DirectX::XMFLOAT3 thisScale = thisComponent->getScale();
+	DirectX::XMFLOAT3 otherPosition = otherComponent->getPosition();
+	DirectX::XMFLOAT3 otherScale = otherComponent->getScale();
 
 	DirectX::XMFLOAT3 thisMin = getAABBMin(thisPosition, thisScale);
 	DirectX::XMFLOAT3 thisMax = getAABBMax(thisPosition, thisScale);
@@ -156,15 +159,34 @@ void PhysicsComponent::resolveAABBCollision(
 	float overlapFront = thisMax.z - otherMin.z;
 	float overlapBack = otherMax.z - thisMin.z;
 
-	// Find minimum overlap axis
-	float minOverlap = overlapLeft;
-	int axis = 0; // 0: left, 1: right, 2: top, 3: bottom, 4: front, 5: back
+	// Получаем ограничения движения
+	DirectX::XMFLOAT3 thisConstraint = thisComponent->getPositionConstraint();
+	DirectX::XMFLOAT3 otherConstraint = otherComponent->getPositionConstraint();
 
-	if (overlapRight < minOverlap) { minOverlap = overlapRight; axis = 1; }
-	if (overlapTop < minOverlap) { minOverlap = overlapTop; axis = 2; }
-	if (overlapBottom < minOverlap) { minOverlap = overlapBottom; axis = 3; }
-	if (overlapFront < minOverlap) { minOverlap = overlapFront; axis = 4; }
-	if (overlapBack < minOverlap) { minOverlap = overlapBack; axis = 5; }
+	// Считаем по камим осям наименьший overlap
+	float minOverlap = FLT_MAX;
+	int axis = -1;
+
+	
+	if (thisConstraint.x != 0.0f || otherConstraint.x != 0.0f) {
+		if (overlapLeft < minOverlap) { minOverlap = overlapLeft; axis = 0; }
+		if (overlapRight < minOverlap) { minOverlap = overlapRight; axis = 1; }
+	}
+
+	
+	if (thisConstraint.y != 0.0f || otherConstraint.y != 0.0f) {
+		if (overlapTop < minOverlap) { minOverlap = overlapTop; axis = 2; }
+		if (overlapBottom < minOverlap) { minOverlap = overlapBottom; axis = 3; }
+	}
+
+	
+	if (thisConstraint.z != 0.0f || otherConstraint.z != 0.0f) {
+		if (overlapFront < minOverlap) { minOverlap = overlapFront; axis = 4; }
+		if (overlapBack < minOverlap) { minOverlap = overlapBack; axis = 5; }
+	}
+
+	// Если нет доступных осей для разрешения коллизии
+	if (axis == -1) return;
 
 	// Separate objects based on minimum overlap
 	float separation = minOverlap + 0.001f; // Small epsilon to prevent re-collision
@@ -181,33 +203,39 @@ void PhysicsComponent::resolveAABBCollision(
 	float thisRatio = otherMass / totalMass;
 	float otherRatio = thisMass / totalMass;
 
-	// Apply separation
+	// Apply separation using GameComponent methods
+	DirectX::XMFLOAT3 thisDelta(0.0f, 0.0f, 0.0f);
+	DirectX::XMFLOAT3 otherDelta(0.0f, 0.0f, 0.0f);
+
 	switch (axis) {
-		case 0: // Left
-			thisPosition.x -= separation * thisRatio;
-			otherPosition.x += separation * otherRatio;
-			break;
-		case 1: // Right
-			thisPosition.x += separation * thisRatio;
-			otherPosition.x -= separation * otherRatio;
-			break;
-		case 2: // Top
-			thisPosition.y -= separation * thisRatio;
-			otherPosition.y += separation * otherRatio;
-			break;
-		case 3: // Bottom
-			thisPosition.y += separation * thisRatio;
-			otherPosition.y -= separation * otherRatio;
-			break;
-		case 4: // Front
-			thisPosition.z -= separation * thisRatio;
-			otherPosition.z += separation * otherRatio;
-			break;
-		case 5: // Back
-			thisPosition.z += separation * thisRatio;
-			otherPosition.z -= separation * otherRatio;
-			break;
+	case 0: // Left
+		thisDelta.x = -separation * thisRatio;
+		otherDelta.x = separation * otherRatio;
+		break;
+	case 1: // Right
+		thisDelta.x = separation * thisRatio;
+		otherDelta.x = -separation * otherRatio;
+		break;
+	case 2: // Top
+		thisDelta.y = -separation * thisRatio;
+		otherDelta.y = separation * otherRatio;
+		break;
+	case 3: // Bottom
+		thisDelta.y = separation * thisRatio;
+		otherDelta.y = -separation * otherRatio;
+		break;
+	case 4: // Front
+		thisDelta.z = -separation * thisRatio;
+		otherDelta.z = separation * otherRatio;
+		break;
+	case 5: // Back
+		thisDelta.z = separation * thisRatio;
+		otherDelta.z = -separation * otherRatio;
+		break;
 	}
+
+	thisComponent->translate(thisDelta);
+	otherComponent->translate(otherDelta);
 
 	// Apply restitution (bouncing)
 	float e = (restitution < other->restitution) ? restitution : other->restitution;
@@ -219,12 +247,12 @@ void PhysicsComponent::resolveAABBCollision(
 	// Get collision normal from axis
 	DirectX::XMFLOAT3 normal(0.0f, 0.0f, 0.0f);
 	switch (axis) {
-		case 0: normal.x = -1.0f; break;
-		case 1: normal.x = 1.0f; break;
-		case 2: normal.y = -1.0f; break;
-		case 3: normal.y = 1.0f; break;
-		case 4: normal.z = -1.0f; break;
-		case 5: normal.z = 1.0f; break;
+	case 0: normal.x = -1.0f; break;
+	case 1: normal.x = 1.0f; break;
+	case 2: normal.y = -1.0f; break;
+	case 3: normal.y = 1.0f; break;
+	case 4: normal.z = -1.0f; break;
+	case 5: normal.z = 1.0f; break;
 	}
 
 	// Calculate impulse scalar

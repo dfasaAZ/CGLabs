@@ -43,7 +43,7 @@ void Game::Initialize() {
 	if (context && rtv) {
 		context->OMSetRenderTargets(1, &rtv, nullptr);
 	}
-	//Для нижней стороны (две ракетки)
+	//Для нижней стороны
 	RectangleComponent* rect = new RectangleComponent(this, DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
 	rect->setScale(DirectX::XMFLOAT3(0.325f, 0.0325f, 1.0f));
 	rect->setPosition(DirectX::XMFLOAT3(-0.5f, -1.0f, 0.0f));
@@ -66,7 +66,7 @@ void Game::Initialize() {
 	Components.push_back(rect);
 	players.push_back(rect);
 
-	//Для верхней стороны (две ракетки)
+	//Для верхней стороны
 	rect = new RectangleComponent(this, DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
 	rect->setScale(DirectX::XMFLOAT3(0.325f, 0.0325f, 1.0f));
 	rect->setPosition(DirectX::XMFLOAT3(-0.5f, 1.0f, 0.0f));
