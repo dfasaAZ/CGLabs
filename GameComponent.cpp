@@ -140,6 +140,7 @@ void GameComponent::resolveCollision(GameComponent* other) {
 
 void GameComponent::updateConstantBuffer() {
 	if (!constantBuffer) return;
+
 	ConstantBuffer cb;
 	DirectX::XMMATRIX world = DirectX::XMMatrixScaling(scale.x, scale.y, scale.z) *
 		DirectX::XMMatrixRotationRollPitchYaw(rotation.x, rotation.y, rotation.z) *
@@ -147,22 +148,11 @@ void GameComponent::updateConstantBuffer() {
 
 	cb.world = DirectX::XMMatrixTranspose(world);
 
-	float aspect = static_cast<float>(game->Display.clientWidth) /
-		static_cast<float>(game->Display.clientHeight);
-
-	DirectX::XMMATRIX proj = DirectX::XMMatrixPerspectiveFovLH(
-		DirectX::XMConvertToRadians(60.0f),  // 60° field of view
-		aspect,                               // Aspect ratio
-		0.1f,                                 // Near plane
-		100.0f);                              // Far plane
-
-	DirectX::XMVECTOR eye = DirectX::XMVectorSet(0.0f, 0.0f, -5.0f, 1.0f);
-	DirectX::XMVECTOR at = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
-	DirectX::XMVECTOR up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-	DirectX::XMMATRIX view = DirectX::XMMatrixLookAtLH(eye, at, up);
+	// Get matrices from camera
+	DirectX::XMMATRIX view = game->mainCamera->GetViewMatrix();
+	DirectX::XMMATRIX proj = game->mainCamera->GetProjectionMatrix();
 
 	cb.worldViewProj = DirectX::XMMatrixTranspose(world * view * proj);
-
 	game->context->UpdateSubresource(constantBuffer, 0, nullptr, &cb, 0, 0);
 }
 

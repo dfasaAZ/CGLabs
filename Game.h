@@ -5,6 +5,7 @@
 #include <wrl.h>
 #include "TriangleComponent.h"
 #include "InputDevice.h"
+#include "Camera.h"
 
 class PongBall;
 
@@ -32,6 +33,11 @@ private:
 		//Глубина
 		void CreateDepthBuffer();
 		void BindDepthBuffer();
+
+		//Камера
+		Camera* mainCamera;
+		bool freeLookActive;
+		POINT lastMousePos;
 
 		//Мишура
 		DisplayWin32 Display;

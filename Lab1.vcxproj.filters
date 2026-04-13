@@ -66,6 +66,9 @@
     <ClCompile Include="SphereComponent.cpp">
       <Filter>Source Files\3d</Filter>
     </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source Files\3d</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Delegates.natvis" />
@@ -114,6 +117,9 @@
       <Filter>Header Files\3d</Filter>
     </ClInclude>
     <ClInclude Include="SphereComponent.h">
+      <Filter>Header Files\3d</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
       <Filter>Header Files\3d</Filter>
     </ClInclude>
   </ItemGroup>

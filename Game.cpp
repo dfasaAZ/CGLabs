@@ -45,6 +45,7 @@ void Game::Initialize() {
 	if (context && rtv) {
 		BindDepthBuffer();
 	}
+	mainCamera = new Camera(800.0f / 600.0f);
 	//Для нижней стороны
 	RectangleComponent* rect = new RectangleComponent(this, DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
 	rect->setScale(DirectX::XMFLOAT3(0.325f, 0.0325f, 1.0f));
@@ -192,7 +193,7 @@ void Game::Run() {
 		}
 
 		if (context && rtv) {
-			context->OMSetRenderTargets(1, &rtv, nullptr);
+			context->OMSetRenderTargets(1, &rtv, depthStencilView);
 		}
 		//Красная моргалка
 		float red = fmodf(totalTime, 1.0f);
@@ -202,6 +203,7 @@ void Game::Run() {
 		context->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 		
 		viewportFromDisplay();
+		mainCamera->Update(deltaTime);
 		for (size_t i = 0; i < Components.size(); ++i) {
 			for (size_t j = i + 1; j < Components.size(); ++j) {
 				if (Components[i]->checkCollision(Components[j])) {
@@ -288,6 +290,35 @@ void Game::OnResize() {
 }
 void Game::processInput(float deltaTime) {
 	float speed = 5.0f;
+
+#pragma region CameraControls
+	float moveSpeed = speed * deltaTime*0.05f;
+	float rotSpeed = 0.1f * deltaTime;
+
+	// Camera controls (only in free mode)
+	if (mainCamera->GetMode() == CameraMode::Free) {
+		if (inputDevice.IsKeyDown(Keys::W)) mainCamera->MoveForward(moveSpeed);
+		if (inputDevice.IsKeyDown(Keys::S)) mainCamera->MoveForward(-moveSpeed);
+		if (inputDevice.IsKeyDown(Keys::A)) mainCamera->MoveRight(-moveSpeed);
+		if (inputDevice.IsKeyDown(Keys::D)) mainCamera->MoveRight(moveSpeed);
+		if (inputDevice.IsKeyDown(Keys::Q)) mainCamera->MoveUp(-moveSpeed);
+		if (inputDevice.IsKeyDown(Keys::E)) mainCamera->MoveUp(moveSpeed);
+
+		// Mouse look when right button held
+		if (inputDevice.IsKeyDown(Keys::RightButton)) {
+			DirectX::SimpleMath::Vector2 mouseDelta = inputDevice.MouseOffset;
+			mainCamera->Yaw(mouseDelta.x * rotSpeed);
+			mainCamera->Pitch(-mouseDelta.y * rotSpeed);
+		}
+	}
+
+	// Mode switching
+	if (inputDevice.IsKeyDown(Keys::NumPad1)) { mainCamera->SetMode(CameraMode::Free); printf("Set camera mode"); }
+	if (inputDevice.IsKeyDown(Keys::NumPad2) && !players.empty())
+		mainCamera->AttachToFP(players[0]);
+	if (inputDevice.IsKeyDown(Keys::NumPad3) && !players.empty())
+		mainCamera->AttachToTP(players[0]);
+#pragma endregion
 
 	if (players.size() >= 4) {
 		struct ControlScheme {
