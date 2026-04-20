@@ -38,6 +38,7 @@ private:
 		Camera* mainCamera;
 		bool freeLookActive;
 		POINT lastMousePos;
+		int currentComponentIndex = 0;
 
 		//Мишура
 		DisplayWin32 Display;

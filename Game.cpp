@@ -45,7 +45,7 @@ void Game::Initialize() {
 	if (context && rtv) {
 		BindDepthBuffer();
 	}
-	mainCamera = new Camera(800.0f / 600.0f);
+	mainCamera = new Camera(Display.clientWidth / Display.clientHeight);
 	//Для нижней стороны
 	RectangleComponent* rect = new RectangleComponent(this, DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
 	rect->setScale(DirectX::XMFLOAT3(0.325f, 0.0325f, 1.0f));
@@ -134,6 +134,7 @@ void Game::Initialize() {
 	CubeComponent* cube = new CubeComponent(this, DirectX::XMFLOAT4(0, 1, 0, 1), 0.5f);
 	cube->setPosition(-0.0f, 0.0f, 2.0f);
 	Components.push_back(cube);
+	players[0]->addChild(cube);
 
 	SphereComponent* sphere = new SphereComponent(this, DirectX::XMFLOAT4(0, 1, 0, 1), 0.3f);
 	sphere->setPosition(1.0f, 0, 2.0f);
@@ -181,7 +182,7 @@ void Game::Run() {
 			SetWindowText(Display.hwnd, text);
 			frameCount = 0;
 		}
-
+		
 		processInput(deltaTime);
 
 		
@@ -289,11 +290,14 @@ void Game::OnResize() {
 	CreateBackBuffer();
 }
 void Game::processInput(float deltaTime) {
-	float speed = 5.0f;
 
+	float speed = 5.0f;
+	
 #pragma region CameraControls
-	float moveSpeed = speed * deltaTime*0.05f;
+	float moveSpeed = speed * deltaTime*0.15f;
 	float rotSpeed = 0.1f * deltaTime;
+	int objectCount = static_cast<int>(Components.size());
+	currentComponentIndex = (currentComponentIndex + objectCount) % objectCount;
 
 	// Camera controls (only in free mode)
 	if (mainCamera->GetMode() == CameraMode::Free) {
@@ -313,11 +317,11 @@ void Game::processInput(float deltaTime) {
 	}
 
 	// Mode switching
-	if (inputDevice.IsKeyDown(Keys::NumPad1)) { mainCamera->SetMode(CameraMode::Free); printf("Set camera mode"); }
-	if (inputDevice.IsKeyDown(Keys::NumPad2) && !players.empty())
-		mainCamera->AttachToFP(players[0]);
-	if (inputDevice.IsKeyDown(Keys::NumPad3) && !players.empty())
-		mainCamera->AttachToTP(players[0]);
+	if (inputDevice.IsKeyPressed(Keys::NumPad1)) { mainCamera->SetMode(CameraMode::Free); printf("Set camera mode"); }
+	if (inputDevice.IsKeyPressed(Keys::NumPad2) && !Components.empty())
+		mainCamera->AttachToFP(Components[currentComponentIndex++ % Components.size()]);
+	if (inputDevice.IsKeyPressed(Keys::NumPad3) && !Components.empty())
+		mainCamera->AttachToTP(Components[currentComponentIndex++ % Components.size()]);
 #pragma endregion
 
 	if (players.size() >= 4) {
@@ -350,6 +354,7 @@ void Game::processInput(float deltaTime) {
 			if (inputDevice.IsKeyDown(Keys::Right)) comp->rotate(DirectX::XMFLOAT3(0, -speed * deltaTime, 0));
 		}
 	}
+	inputDevice.UpdateKeyStates();
 }
 void Game::ballCheck() {
 	if (ball != nullptr) {

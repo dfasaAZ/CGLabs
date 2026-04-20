@@ -30,7 +30,8 @@ public:
 	int MouseWheelDelta;
 
 	MulticastDelegate<const MouseMoveEventArgs&> MouseMove;
-	
+private:
+	std::unordered_set<Keys> previousKeys;
 public:
 	
 	InputDevice(Game* inGame);
@@ -41,6 +42,8 @@ public:
 	void RemovePressedKey(Keys key);
 	bool IsKeyDown(Keys key);
 	void UpdateTransformations(float deltaTime);
+	bool IsKeyPressed(Keys key);
+	void UpdateKeyStates();
 
 
 public:

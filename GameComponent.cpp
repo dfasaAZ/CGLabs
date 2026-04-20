@@ -75,10 +75,16 @@ PhysicsComponent* GameComponent::getPhysics() {
 }
 
 void GameComponent::translate(DirectX::XMFLOAT3 delta) {
+
 	setPosition(DirectX::XMFLOAT3(
 		position.x + (delta.x * positonConstraint.x),
 		position.y + (delta.y * positonConstraint.y),
 		position.z + (delta.z * positonConstraint.z)));
+	if (childComponents.size() > 0) {
+		for (GameComponent* child : childComponents) {
+			child->translate(delta);
+		}
+	}	
 	//printf("Position: (%f, %f, %f)\n", position.x, position.y, position.z);
 }
 
@@ -314,4 +320,9 @@ void GameComponent::rotateEuler(const DirectX::XMFLOAT3& deltaEuler) {
 	result = DirectX::XMQuaternionNormalize(result);
 	DirectX::XMStoreFloat4(&quaternion, result);
 	updateConstantBuffer();
+}
+void GameComponent::addChild(GameComponent* parent) 
+{
+
+		childComponents.push_back(parent);
 }

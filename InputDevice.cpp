@@ -107,4 +107,16 @@ bool InputDevice::IsKeyDown(Keys key)
 {
 	return keys->count(key);
 }
+void InputDevice::UpdateKeyStates()
+{
+	previousKeys.clear();
+	previousKeys.insert(keys->begin(), keys->end());
+}
+
+bool InputDevice::IsKeyPressed(Keys key)
+{
+	bool currentlyDown = keys->count(key) > 0;
+	bool wasDownPreviously = previousKeys.count(key) > 0;
+	return currentlyDown && !wasDownPreviously;
+}
 

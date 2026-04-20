@@ -4,6 +4,7 @@
 #include <d3dcompiler.h>
 #include <directxmath.h>
 #include "PhysicsComponent.h"
+#include <vector>
 
 class Game;
 
@@ -34,7 +35,7 @@ public:
 	void translate(DirectX::XMFLOAT3 delta);
 	void rotate(DirectX::XMFLOAT3 delta);
 
-	//Вращение на кватернионах
+	//Вращение на кватернионах(не использую)
 	void setRotation(const DirectX::XMFLOAT4& quat);
 	void setRotationEuler(const DirectX::XMFLOAT3& euler);
 	DirectX::XMFLOAT4 getRotationQuat() const;
@@ -49,6 +50,9 @@ public:
 
 	void setScaleConstraint(float x, float y, float z);
 	DirectX::XMFLOAT3 getScaleConstraint() const;
+
+	//Добавить компонент наследник
+	void addChild(GameComponent* parent);
 
 	// Physics
 	PhysicsComponent* getPhysics();
@@ -81,6 +85,9 @@ protected:
 	DirectX::XMFLOAT3 rotationConstraint;
 	//Ограничитель масштабирования по осям (1 - разрешено, 0 - запрещено)
 	DirectX::XMFLOAT3 scaleConstraint;
+
+	//Компоненты наследники
+	std::vector<GameComponent*> childComponents;
 
 	ID3D11Buffer* constantBuffer = nullptr;
 

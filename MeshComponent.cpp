@@ -80,7 +80,7 @@ void MeshComponent::initialize()
     // Create rasterizer state
     D3D11_RASTERIZER_DESC rasterDesc = {};
     rasterDesc.FillMode = D3D11_FILL_SOLID;
-    rasterDesc.CullMode = D3D11_CULL_BACK;
+    rasterDesc.CullMode = D3D11_CULL_FRONT;
     rasterDesc.FrontCounterClockwise = FALSE;
     rasterDesc.DepthClipEnable = TRUE;
 
