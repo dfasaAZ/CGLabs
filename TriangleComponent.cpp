@@ -120,7 +120,7 @@ void TriangleComponent::draw() {
 
 	game->context->DrawIndexed(3, 0, 0);
 }
-void TriangleComponent::update() {
+void TriangleComponent::update(float deltaTime) {
 
 }
 

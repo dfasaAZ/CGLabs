@@ -133,6 +133,7 @@
     <ClCompile Include="MeshComponent.cpp" />
     <ClCompile Include="MySuper3DApp.cpp" />
     <ClCompile Include="PhysicsComponent.cpp" />
+    <ClCompile Include="Planet.cpp" />
     <ClCompile Include="PongBall.cpp" />
     <ClCompile Include="RectangleComponent.cpp" />
     <ClCompile Include="SimpleMath.cpp" />
@@ -151,6 +152,7 @@
     <ClInclude Include="Keys.h" />
     <ClInclude Include="MeshComponent.h" />
     <ClInclude Include="PhysicsComponent.h" />
+    <ClInclude Include="Planet.h" />
     <ClInclude Include="PongBall.h" />
     <ClInclude Include="RectangleComponent.h" />
     <ClInclude Include="SimpleMath.h" />

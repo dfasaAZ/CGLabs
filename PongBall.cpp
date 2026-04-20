@@ -16,9 +16,9 @@ PongBall::~PongBall()
 {
 }
 
-void PongBall::update()
+void PongBall::update(float deltaTime)
 {
-	RectangleComponent::update();
+	RectangleComponent::update(deltaTime);
 	this->rotate(DirectX::XMFLOAT3(0.0f, 0.0f, 5.0f));
 }
 //Возвращает 1, если мяч в воротах первого, 2 - второго,0 - на поле

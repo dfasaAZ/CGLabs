@@ -73,8 +73,8 @@ void SphereComponent::setDetail(uint32_t slices, uint32_t stacks)
     stackCount = (((2u) > (stacks)) ? (2u) : (stacks));
     generateMesh();
 }
-void SphereComponent::update()
+void SphereComponent::update(float deltaTime)
 {
-    MeshComponent::update();
+    MeshComponent::update(deltaTime);
  
 }

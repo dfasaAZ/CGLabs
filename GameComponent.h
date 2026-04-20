@@ -18,7 +18,7 @@ public:
 	virtual void draw() = 0;
 	virtual void initialize() = 0;
 	virtual void reload() = 0;
-	virtual void update() = 0;
+	virtual void update(float deltaTime) = 0;
 
 	void setPosition(DirectX::XMFLOAT3 position);
 	void setRotation(DirectX::XMFLOAT3 rotation);
@@ -52,7 +52,7 @@ public:
 	DirectX::XMFLOAT3 getScaleConstraint() const;
 
 	//Добавить компонент наследник
-	void addChild(GameComponent* parent);
+	virtual void addChild(GameComponent* parent);
 
 	// Physics
 	PhysicsComponent* getPhysics();

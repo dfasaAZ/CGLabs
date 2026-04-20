@@ -7,7 +7,7 @@ public:
 	PongBall(Game* game, DirectX::XMFLOAT4 color);
 	~PongBall();
 
-	void update() override;
+	void update(float deltaTime) override;
 	int isOutOfBounds() const;
 
 private:

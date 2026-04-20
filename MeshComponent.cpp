@@ -156,7 +156,7 @@ void MeshComponent::draw()
     game->context->DrawIndexed(static_cast<UINT>(meshIndices.size()), 0, 0);
 }
 
-void MeshComponent::update()
+void MeshComponent::update(float deltaTime)
 {
 }
 void MeshComponent::reload()

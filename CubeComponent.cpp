@@ -67,9 +67,9 @@ void CubeComponent::setSize(float size)
     cubeSize = size;
     generateMesh();
 }
-void CubeComponent::update()
+void CubeComponent::update(float deltaTime)
 {
-    MeshComponent::update();
+    MeshComponent::update(deltaTime);
 
     this->rotate(DirectX::XMFLOAT3(0.01f, 0.0f, 0.0f));
 }

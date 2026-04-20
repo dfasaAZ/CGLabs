@@ -118,7 +118,7 @@ void GameComponent::setScaleConstraint(float x, float y, float z) {
 DirectX::XMFLOAT3 GameComponent::getScaleConstraint() const {
 	return scaleConstraint;
 }
-void GameComponent::update() {
+void GameComponent::update(float deltaTime) {
 }
 void GameComponent::updatePhysics(float deltaTime) {
 	if (physics) {

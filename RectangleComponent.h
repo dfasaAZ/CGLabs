@@ -8,7 +8,7 @@ public:
 	RectangleComponent(Game* game, DirectX::XMFLOAT4 color);
 	~RectangleComponent();
 	void initialize() override;
-	void update() override;
+	void update(float deltaTime) override;
 	void draw() override;
 	void destroyResources() override;
 	void reload() override;

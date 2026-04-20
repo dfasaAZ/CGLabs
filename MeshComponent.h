@@ -14,7 +14,7 @@ public:
     virtual ~MeshComponent();
 
     virtual void draw() override;
-    virtual void update() override;
+    virtual void update(float deltaTime) override;
     void initialize() override;
     void destroyResources() override;
     void reload() override;

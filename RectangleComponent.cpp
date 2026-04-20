@@ -139,7 +139,7 @@ void RectangleComponent::draw() {
 	game->context->DrawIndexed(6, 0, 0);
 }
 
-void RectangleComponent::update() {
+void RectangleComponent::update(float deltaTime) {
 
 }
 

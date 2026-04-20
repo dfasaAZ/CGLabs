@@ -8,7 +8,7 @@ class TriangleComponent :public GameComponent
 	TriangleComponent(Game* game, DirectX::XMFLOAT4 points[6]);
 	~TriangleComponent();
 	void initialize() override;
-	void update() override;
+	void update(float deltaTime) override;
 	void draw() override;
 	void destroyResources() override;
 	void reload() override;
