@@ -30,7 +30,7 @@ public:
 
 	DirectX::XMFLOAT3 getPosition() const;
 	DirectX::XMFLOAT3 getRotation() const;
-	DirectX::XMFLOAT3 getScale() const;
+	virtual DirectX::XMFLOAT3 getScale() const;
 
 	void translate(DirectX::XMFLOAT3 delta);
 	void rotate(DirectX::XMFLOAT3 delta);

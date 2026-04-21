@@ -9,7 +9,7 @@ public:
         uint32_t slices = 16,
         uint32_t stacks = 16);
     virtual ~SphereComponent() = default;
-
+  
     virtual void update(float deltaTime) override;
 
     void setRadius(float radius);

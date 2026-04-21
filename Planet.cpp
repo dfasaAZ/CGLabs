@@ -10,12 +10,12 @@ Planet::Planet(Game* g, MeshComponent* meshComponent,
     , rotationSpeed(rotationSpeed)
     , currentOrbitAngle(0.0f)
     , currentRotationAngle(0.0f)
-    , orbitCenter(0.0f, 0.0f, 0.0f)
 {
     if (mesh)
     {
         orbitCenter = this->getPosition();
         addChild(mesh);
+		mesh->setPosition(this->position.x, this->position.y, this->position.z);
     }
     createConstantBuffer();
 }
@@ -27,15 +27,18 @@ Planet::~Planet()
 
 void Planet::addChild(GameComponent* child)
 {
-   
     GameComponent::addChild(child);
 
     if (child)
     {
-        // Спутники
         Planet* planetChild = dynamic_cast<Planet*>(child);
         if (planetChild)
         {
+            DirectX::XMFLOAT3 childPos = planetChild->getPosition();
+            float dx = childPos.x - position.x;
+            float dz = childPos.z - position.z;
+            planetChild->orbitRadius = sqrtf(dx * dx + dz * dz);
+            planetChild->currentOrbitAngle = atan2f(dz, dx);
             planetChild->setOrbitCenter(this->position);
         }
     }
@@ -45,68 +48,59 @@ void Planet::rotateAgainstParent(float deltaTime)
 {
     currentOrbitAngle += orbitSpeed * deltaTime;
 
-    // костыль от жпт
-    if (currentOrbitAngle > 2.0f * 3.14159265359f)
-    {
-        currentOrbitAngle -= 2.0f * 3.14159265359f;
-    }
+    while (currentOrbitAngle > 2.0f * DirectX::XM_PI)
+        currentOrbitAngle -= 2.0f * DirectX::XM_PI;
+    while (currentOrbitAngle < 0.0f)
+        currentOrbitAngle += 2.0f * DirectX::XM_PI;
 
-    // Calculate new position on the orbital circle
-    float radius = sqrtf(
-        (position.x - orbitCenter.x) * (position.x - orbitCenter.x) +
-        (position.y - orbitCenter.y) * (position.y - orbitCenter.y) +
-        (position.z - orbitCenter.z) * (position.z - orbitCenter.z)
-    );
+    float newX = orbitCenter.x + orbitRadius * cosf(currentOrbitAngle);
+    float newZ = orbitCenter.z + orbitRadius * sinf(currentOrbitAngle);
 
-    // костыль
-    if (radius < 0.001f)
-    {
-        radius = 2.0f;
-    }
-
-    // Calculate new position (orbit in XZ plane by default, you can modify this)
-    float newX = orbitCenter.x + radius * cosf(currentOrbitAngle);
-    float newZ = orbitCenter.z + radius * sinf(currentOrbitAngle);
-
-    // Calculate delta translation
     DirectX::XMFLOAT3 delta(
         newX - position.x,
-        0.0f, // Keep Y constant for planar orbit
+        0.0f,
         newZ - position.z
     );
 
-    // Apply translation
     translate(delta);
+
+    for (auto* moon : childComponents)
+    {
+        Planet* planetChild = dynamic_cast<Planet*>(moon);
+        if (planetChild)
+        {
+            planetChild->setOrbitCenter(this->position);
+        }
+    }
 }
 
 void Planet::revolve(float deltaTime)
 {
     if (!mesh) return;
 
-    // Update rotation angle
     currentRotationAngle += rotationSpeed * deltaTime;
 
-    // Keep angle in reasonable range
-    if (currentRotationAngle > 2.0f * 3.14159265359f)
-    {
-        currentRotationAngle -= 2.0f * 3.14159265359f;
-    }
+    while (currentRotationAngle > 2.0f * DirectX::XM_PI)
+        currentRotationAngle -= 2.0f * DirectX::XM_PI;
+    while (currentRotationAngle < 0.0f)
+        currentRotationAngle += 2.0f * DirectX::XM_PI;
 
-    // Apply rotation to the mesh (rotate around Y axis by default)
     mesh->setRotation(DirectX::XMFLOAT3(0.0f, currentRotationAngle, 0.0f));
 }
 
 void Planet::update(float deltaTime)
 {
-    rotateAgainstParent(deltaTime);
-    revolve(deltaTime);
     GameComponent::update(deltaTime);
 
-    for (auto* child : childComponents)
+    rotateAgainstParent(deltaTime);
+    revolve(deltaTime);
+
+    for (auto* moon : childMoons)
     {
-        if (child)
+        if (moon)
         {
-            child->update(deltaTime);
+            moon->setOrbitCenter(this->position);
+            moon->update(deltaTime);
         }
     }
 }
@@ -143,5 +137,54 @@ void Planet::resolveCollision(GameComponent* other)
     if (mesh)
     {
         mesh->resolveCollision(other);
+    }
+}
+void Planet::setPosition(float x, float y, float z)
+{
+    std::vector<DirectX::XMFLOAT3> childRelativePositions;
+    for (auto* child : childComponents)
+    {
+        DirectX::XMFLOAT3 childPos = child->getPosition();
+        childRelativePositions.push_back({
+            childPos.x - position.x,
+            childPos.y - position.y,
+            childPos.z - position.z
+            });
+    }
+
+    GameComponent::setPosition(x, y, z);
+    this->orbitCenter = this->position;
+
+    if (mesh)
+    {
+        mesh->setPosition(x, y, z);
+    }
+
+    int index = 0;
+    for (auto* child : childComponents)
+    {
+        if (index < childRelativePositions.size())
+        {
+            child->setPosition(
+                x + childRelativePositions[index].x,
+                y + childRelativePositions[index].y,
+                z + childRelativePositions[index].z
+            );
+
+            Planet* moon = dynamic_cast<Planet*>(child);
+            if (moon)
+            {
+                moon->setOrbitCenter(this->position);
+            }
+        }
+        index++;
+    }
+}
+void Planet::setScale(float x, float y, float z)
+{
+    GameComponent::setScale(x, y, z);
+    if (mesh)
+    {
+        mesh->setScale(x, y, z);
     }
 }

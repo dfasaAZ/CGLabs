@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "GameComponent.h"
 #include "MeshComponent.h"
 #include <DirectXMath.h>
@@ -6,12 +6,15 @@
 class Planet : public GameComponent
 {
 private:
-    float orbitSpeed;           // Speed of revolving around point (radians per second)
-    float rotationSpeed;        // Speed of rotating around own axis (radians per second)
-    MeshComponent* mesh;        // The visual mesh component
-    float currentOrbitAngle;    // Current angle for orbit (radians)
-    float currentRotationAngle; // Current angle for self-rotation (radians)
-    DirectX::XMFLOAT3 orbitCenter; // Point to orbit around
+    float orbitSpeed;
+    float rotationSpeed;  
+    MeshComponent* mesh;       
+    float currentOrbitAngle;    
+    float currentRotationAngle; 
+    DirectX::XMFLOAT3 orbitCenter;
+    float orbitRadius;
+    //Компоненты наследники
+    std::vector<Planet*> childMoons;
 
 public:
     Planet(Game* g, MeshComponent* meshComponent,
@@ -26,7 +29,9 @@ public:
     void reload() override;
     void resolveCollision(GameComponent* other) override;
     virtual void addChild(GameComponent* child) override;
-
+    void setPosition(float x, float y, float z);
+    void setScale(float x, float y, float z);
+	//virtual void addMoon(Planet* moon);
     // Orbit around the orbit center point
     void rotateAgainstParent(float deltaTime);
 
@@ -53,4 +58,7 @@ public:
     float getCurrentRotationAngle() const { return currentRotationAngle; }
 
     MeshComponent* getMesh() const { return mesh; }
+protected:
+    void setOrbitRadius(float radius) { orbitRadius = radius; }
+    float getOrbitRadius() const { return orbitRadius; }
 };

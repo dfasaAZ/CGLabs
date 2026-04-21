@@ -8,6 +8,7 @@ SphereComponent::SphereComponent(Game* g, const DirectX::XMFLOAT4& color,
     , sliceCount((((3u) > (slices)) ? (3u) : (slices)))
     , stackCount((((2u) > (stacks)) ? (2u) : (stacks)))
 {
+    setScale(DirectX::XMFLOAT3(radius, radius, radius));
     generateMesh();
 }
 

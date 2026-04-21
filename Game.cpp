@@ -137,25 +137,25 @@ void Game::Initialize() {
 	Components.push_back(cube);
 	players[0]->addChild(cube);
 
-	SphereComponent* sphere = new SphereComponent(this, DirectX::XMFLOAT4(0, 1, 0, 1), 0.3f);
-	sphere->setPosition(1.0f, 0, 2.0f);
-	Components.push_back(sphere);
-	MeshComponent* planetMesh = new SphereComponent(this, DirectX::XMFLOAT4(0.2f, 0.5f, 0.8f, 1.0f), 0.5f);
-	planetMesh->setPosition(3.0f, 0.0f, 0.0f);
-
+	MeshComponent* planetMesh = new SphereComponent(this, DirectX::XMFLOAT4(0.2f, 0.5f, 0.8f, 1.0f));
 	Planet* planet = new Planet(this, planetMesh, 0.5f, 2.0f);
-	planet->setPosition(3.0f, 0.0f, 0.0f);
-	planet->setOrbitCenter(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f));
+	planet->setPosition(0.0f, 0.0f, 10.0f);
+	planet->setScale(1.5f, 1.5f, 1.5f);
 	Components.push_back(planet);
 
-	// Add a moon
-	MeshComponent* moonMesh = new SphereComponent(this, DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f), 0.15f);
-	moonMesh->setPosition(1.0f, 0.0f, 0.0f);
-
-	Planet* moon = new Planet(this, moonMesh, 2.0f, 1.0f);
-	moon->setPosition(1.0f, 0.0f, 0.0f);
-	planet->addChild(moon); // This will automatically set moon's orbit center to planet's position
+	MeshComponent* moonMesh = new SphereComponent(this, DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f));
+	Planet* moon = new Planet(this, moonMesh, 1.0f, 0.0f);
+	moon->setPosition(4.0f, 0.0f, 10.0f);
+	moon->setScale(0.5f, 0.5f, 0.5f);
+	planet->addChild(moon);
 	Components.push_back(moon);
+
+	MeshComponent* moonMesh2 = new SphereComponent(this, DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f));
+	Planet* moon2 = new Planet(this, moonMesh2, 4.5f, 0.0f);
+	moon2->setPosition(4.5f, 0.0f, 10.0f);
+	moon2->setScale(0.25f, 0.25f, 0.25f);
+	moon->addChild(moon2);
+	Components.push_back(moon2);
 }
 void Game::CreateBackBuffer() {
 	ID3D11Texture2D* backTex;

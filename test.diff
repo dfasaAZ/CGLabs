@@ -1,0 +1,137 @@
+--- Planet.h.original
++++ Planet.h
+@@ -13,6 +13,7 @@
+     float currentOrbitAngle;    
+     float currentRotationAngle; 
+     DirectX::XMFLOAT3 orbitCenter;
++    float orbitRadius;
+     //Компоненты наследники
+     std::vector<Planet*> childMoons;
+
+--- Planet.cpp.original
++++ Planet.cpp
+@@ -31,11 +31,21 @@
+         Planet* planetChild = dynamic_cast<Planet*>(child);
+         if (planetChild)
+         {
++            DirectX::XMFLOAT3 childPos = planetChild->getPosition();
++            DirectX::XMFLOAT3 parentPos = this->position;
++            
++            float dx = childPos.x - parentPos.x;
++            float dz = childPos.z - parentPos.z;
++            planetChild->orbitRadius = sqrtf(dx*dx + dz*dz);
++            planetChild->currentOrbitAngle = atan2f(dz, dx);
++            
+             planetChild->setOrbitCenter(this->position);
+         }
+     }
+ }
+
+ void Planet::rotateAgainstParent(float deltaTime)
+ {
+-    
+     currentOrbitAngle += orbitSpeed * deltaTime;
+ 
+-    // костыль от жпт
+-    if (currentOrbitAngle > 2.0f * 3.14159265359f)
+-    {
+-        currentOrbitAngle -= 2.0f * 3.14159265359f;
+-    }
+-
+-    // Calculate new position on the orbital circle
+-    float radius = sqrtf(
+-        (position.x - orbitCenter.x) * (position.x - orbitCenter.x) +
+-        (position.y - orbitCenter.y) * (position.y - orbitCenter.y) +
+-        (position.z - orbitCenter.z) * (position.z - orbitCenter.z)
+-    );
++    while (currentOrbitAngle > 2.0f * DirectX::XM_PI)
++        currentOrbitAngle -= 2.0f * DirectX::XM_PI;
++    while (currentOrbitAngle < 0.0f)
++        currentOrbitAngle += 2.0f * DirectX::XM_PI;
+ 
+-    float newX = orbitCenter.x + radius * cosf(currentOrbitAngle);
+-    float newZ = orbitCenter.z + radius * sinf(currentOrbitAngle);
++    float newX = orbitCenter.x + orbitRadius * cosf(currentOrbitAngle);
++    float newZ = orbitCenter.z + orbitRadius * sinf(currentOrbitAngle);
+ 
+-    // Calculate delta translation
+     DirectX::XMFLOAT3 delta(
+         newX - position.x,
+-        0.0f, // Keep Y constant for planar orbit
++        0.0f,
+         newZ - position.z
+     );
+ 
+-    // Apply translation
+     translate(delta);
++    
++    for (auto* moon : childMoons)
++    {
++        if (moon)
++        {
++            moon->setOrbitCenter(this->position);
++        }
++    }
+ }
+
+@@ -88,17 +87,26 @@
+
+ void Planet::update(float deltaTime)
+ {
+-    
+     GameComponent::update(deltaTime);
+ 
++    rotateAgainstParent(deltaTime);
++    revolve(deltaTime);
++    
+     for (auto* child : childMoons)
+     {
+         if (child)
+         {
+             child->setOrbitCenter(this->position);
+-            child->update(deltaTime);
+         }
+     }
+-    rotateAgainstParent(deltaTime);
+-    revolve(deltaTime);
++    
++    for (auto* moon : childMoons)
++    {
++        if (moon)
++        {
++            moon->setOrbitCenter(this->position);
++            moon->update(deltaTime);
++        }
++    }
+ }
+
+--- Game.cpp.original
++++ Game.cpp
+@@ -107,12 +107,11 @@
+ 	MeshComponent* planetMesh = new SphereComponent(this, DirectX::XMFLOAT4(0.2f, 0.5f, 0.8f, 1.0f), 0.5f);
+ 
+ 	Planet* planet = new Planet(this, planetMesh, 0.5f, 2.0f);
+-	planet->setPosition(3.0f, 0.0f, 10.0f);
++	planet->setPosition(0.0f, 0.0f, 10.0f);
+ 	Components.push_back(planet);
+ 
+-	// Add a moon
+ 	MeshComponent* moonMesh = new SphereComponent(this, DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f), 0.15f);
+-	// Add a moon
+-	MeshComponent* moonMesh2 = new SphereComponent(this, DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f), 0.15f);
+ 
+ 	Planet* moon = new Planet(this, moonMesh, 1.0f, 0.0f);
+-	moon->setPosition(1.0f, 0.0f, 10.0f);
++	moon->setPosition(2.0f, 0.0f, 10.0f);
+ 	planet->addChild(moon); 
+ 	planet->addMoon(moon);
+ 	Components.push_back(moon);
+ 
+-	Planet* moon2 = new Planet(this, moonMesh2, 1.0f, 0.0f);
+-	moon2->setPosition(1.0f, 0.0f, 10.0f);
++	MeshComponent* moonMesh2 = new SphereComponent(this, DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f), 0.15f);
++	Planet* moon2 = new Planet(this, moonMesh2, 1.5f, 0.0f);
++	moon2->setPosition(3.0f, 0.0f, 10.0f);
+ 	moon->addChild(moon2);
+ 	moon->addMoon(moon2);
+ 	Components.push_back(moon2);
