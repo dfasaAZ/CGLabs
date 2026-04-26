@@ -46,6 +46,7 @@ void Planet::addChild(GameComponent* child)
 
 void Planet::rotateAgainstParent(float deltaTime)
 {
+	//if (isControlledByPlayer) return;
     currentOrbitAngle += orbitSpeed * deltaTime;
 
     while (currentOrbitAngle > 2.0f * DirectX::XM_PI)
@@ -91,12 +92,12 @@ void Planet::revolve(float deltaTime)
 void Planet::update(float deltaTime)
 {
     GameComponent::update(deltaTime);
-
     rotateAgainstParent(deltaTime);
     revolve(deltaTime);
 
-    for (auto* moon : childMoons)
+    for (auto* child : childComponents)
     {
+        Planet* moon = dynamic_cast<Planet*>(child);
         if (moon)
         {
             moon->setOrbitCenter(this->position);
@@ -155,10 +156,6 @@ void Planet::setPosition(float x, float y, float z)
     GameComponent::setPosition(x, y, z);
     this->orbitCenter = this->position;
 
-    if (mesh)
-    {
-        mesh->setPosition(x, y, z);
-    }
 
     int index = 0;
     for (auto* child : childComponents)
@@ -187,4 +184,13 @@ void Planet::setScale(float x, float y, float z)
     {
         mesh->setScale(x, y, z);
     }
+}
+void Planet::translate(DirectX::XMFLOAT3 delta)
+{
+    GameComponent::translate(delta);
+
+    this->orbitCenter.x += delta.x;
+    this->orbitCenter.y += delta.y;
+    this->orbitCenter.z += delta.z;
+   
 }

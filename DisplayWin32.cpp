@@ -2,6 +2,7 @@
 #include "Game.h" 
 #include <iostream>
 #include <cstdio>
+#include <vector>
 
 Game* DisplayWin32::gameInstance = nullptr;
 // Ловят нажатия и другие события
@@ -14,13 +15,13 @@ LRESULT CALLBACK DisplayWin32::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARA
         return 0;
     case WM_KEYDOWN:
     {
-		// Каким-то образом из lParam извлекают данные
+        // Каким-то образом из lParam извлекают данные
         gameInstance->inputDevice.OnKeyDown({
             static_cast<unsigned short>((lParam >> 16) & 0xFF), // MakeCode
             static_cast<unsigned short>((lParam >> 24) & 0xFF), // Flags
             static_cast<unsigned short>(wParam), // VKey
-            msg 
-			});
+            msg
+            });
         if (static_cast<unsigned int>(wParam) == VK_ESCAPE) {
             PostQuitMessage(0);
         }
@@ -36,12 +37,63 @@ LRESULT CALLBACK DisplayWin32::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARA
             });
         return 0;
     }
+    case WM_INPUT:
+    {
+        // Get size of raw input
+        UINT dwSize = 0;
+        if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, nullptr, &dwSize, sizeof(RAWINPUTHEADER)) == (UINT)-1) {
+            break;
+        }
+
+        std::vector<BYTE> lpb(dwSize);
+        if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, lpb.data(), &dwSize, sizeof(RAWINPUTHEADER)) != dwSize) {
+            break;
+        }
+
+        RAWINPUT* raw = reinterpret_cast<RAWINPUT*>(lpb.data());
+
+        if (raw->header.dwType == RIM_TYPEKEYBOARD)
+        {
+            // Forward raw keyboard events to InputDevice (make sure InputDevice exists)
+            if (raw->data.keyboard.Message == WM_KEYDOWN || raw->data.keyboard.Message == WM_SYSKEYDOWN) {
+                gameInstance->inputDevice.OnKeyDown({
+                    raw->data.keyboard.MakeCode,
+                    raw->data.keyboard.Flags,
+                    static_cast<unsigned short>(raw->data.keyboard.VKey),
+                    static_cast<unsigned int>(raw->data.keyboard.Message)
+                    });
+            }
+            else if (raw->data.keyboard.Message == WM_KEYUP || raw->data.keyboard.Message == WM_SYSKEYUP) {
+                gameInstance->inputDevice.OnKeyUp({
+                    raw->data.keyboard.MakeCode,
+                    raw->data.keyboard.Flags,
+                    static_cast<unsigned short>(raw->data.keyboard.VKey),
+                    static_cast<unsigned int>(raw->data.keyboard.Message)
+                    });
+            }
+        }
+        else if (raw->header.dwType == RIM_TYPEMOUSE)
+        {
+            // Forward raw mouse events to InputDevice
+            gameInstance->inputDevice.OnMouseMove({
+                static_cast<int>(raw->data.mouse.usFlags),
+                static_cast<int>(raw->data.mouse.usButtonFlags),
+                static_cast<int>(raw->data.mouse.ulExtraInformation),
+                static_cast<int>(raw->data.mouse.ulRawButtons),
+                static_cast<int>(static_cast<SHORT>(raw->data.mouse.usButtonData)),
+                static_cast<int>(raw->data.mouse.lLastX),
+                static_cast<int>(raw->data.mouse.lLastY)
+                });
+        }
+
+        return 0;
+    }
     case WM_SIZE:
         //Пока не работает
         if (wParam != SIZE_MINIMIZED and gameInstance != nullptr) {
             gameInstance->OnResize();
         }
-		return 0;
+        return 0;
     default:
         return DefWindowProc(hwnd, msg, wParam, lParam);
     }

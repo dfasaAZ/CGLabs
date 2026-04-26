@@ -132,30 +132,127 @@ void Game::Initialize() {
 	rect->getPhysics()->setRestitution(1.0f);
 	Components.push_back(rect);
 
-	CubeComponent* cube = new CubeComponent(this, DirectX::XMFLOAT4(0, 1, 0, 1), 0.5f);
-	cube->setPosition(-0.0f, 0.0f, 2.0f);
-	Components.push_back(cube);
-	players[0]->addChild(cube);
+	// Central Star (Sun)
+	MeshComponent* sunMesh = new SphereComponent(this, DirectX::XMFLOAT4(1.0f, 0.8f, 0.2f, 1.0f));
+	Planet* sun = new Planet(this, sunMesh, 0.0f, -1.0f);
+	sun->setPosition(0.0f, 0.0f, 0.0f);
+	sun->setScale(1.0f, 1.0f, 1.0f);
+	Components.push_back(sun);
+	// Меркуриц
+	MeshComponent* mercuryMesh = new SphereComponent(this, DirectX::XMFLOAT4(0.6f, 0.4f, 0.3f, 1.0f));
+	Planet* mercury = new Planet(this, mercuryMesh, 0.1f, 5.0f);
+	mercury->setPosition(5.0f, 0.0f, 0.0f);
+	mercury->setScale(0.6f, 0.6f, 0.6f);
+	sun->addChild(mercury);
+	Components.push_back(mercury);
 
-	MeshComponent* planetMesh = new SphereComponent(this, DirectX::XMFLOAT4(0.2f, 0.5f, 0.8f, 1.0f));
-	Planet* planet = new Planet(this, planetMesh, 0.5f, 2.0f);
-	planet->setPosition(0.0f, 0.0f, 10.0f);
-	planet->setScale(1.5f, 1.5f, 1.5f);
-	Components.push_back(planet);
+	// Венера
+	MeshComponent* venusMesh = new SphereComponent(this, DirectX::XMFLOAT4(0.9f, 0.7f, 0.4f, 1.0f));
+	Planet* venus = new Planet(this, venusMesh, 0.2f, 8.0f);
+	venus->setPosition(8.0f, 0.0f, 0.0f);
+	venus->setScale(0.9f, 0.9f, 0.9f);
+	sun->addChild(venus);
+	Components.push_back(venus);
 
-	MeshComponent* moonMesh = new SphereComponent(this, DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f));
-	Planet* moon = new Planet(this, moonMesh, 1.0f, 0.0f);
-	moon->setPosition(4.0f, 0.0f, 10.0f);
-	moon->setScale(0.5f, 0.5f, 0.5f);
-	planet->addChild(moon);
-	Components.push_back(moon);
+	// Земля
+	MeshComponent* earthMesh = new SphereComponent(this, DirectX::XMFLOAT4(0.2f, 0.5f, 0.8f, 1.0f));
+	Planet* earth = new Planet(this, earthMesh, 0.5f, 11.0f);
+	earth->setPosition(11.0f, 0.0f, 0.0f);
+	earth->setScale(1.0f, 1.0f, 1.0f);
+	sun->addChild(earth);
+	Components.push_back(earth);
 
-	MeshComponent* moonMesh2 = new SphereComponent(this, DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f));
-	Planet* moon2 = new Planet(this, moonMesh2, 4.5f, 0.0f);
-	moon2->setPosition(4.5f, 0.0f, 10.0f);
-	moon2->setScale(0.25f, 0.25f, 0.25f);
-	moon->addChild(moon2);
-	Components.push_back(moon2);
+	// Луна Земли
+	MeshComponent* lunaMesh = new SphereComponent(this, DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f));
+	Planet* moon1 = new Planet(this, lunaMesh, 0.5f, 0.0f);
+	moon1->setPosition(2.5f, 0.0f, 0.0f);
+	moon1->setScale(0.27f, 0.27f, 0.27f);
+	earth->addChild(moon1);
+	Components.push_back(moon1);
+
+	MeshComponent* earthMoon2Mesh = new SphereComponent(this, DirectX::XMFLOAT4(0.7f, 0.7f, 0.8f, 1.0f));
+	Planet* moon1b = new Planet(this, earthMoon2Mesh, 1.8f, 0.0f);
+	moon1b->setPosition(-3.2f, 1.5f, 0.0f);
+	moon1b->setScale(0.18f, 0.18f, 0.18f);
+	earth->addChild(moon1b);
+	Components.push_back(moon1b);
+
+	// Марс
+	MeshComponent* marsMesh = new SphereComponent(this, DirectX::XMFLOAT4(0.8f, 0.3f, 0.2f, 1.0f));
+	Planet* mars = new Planet(this, marsMesh, 0.8f, 14.0f);
+	mars->setPosition(14.0f, 0.0f, 0.0f);
+	mars->setScale(0.85f, 0.85f, 0.85f);
+	sun->addChild(mars);
+	Components.push_back(mars);
+
+	// Луны Марса
+	MeshComponent* phobosMesh = new SphereComponent(this, DirectX::XMFLOAT4(0.7f, 0.6f, 0.5f, 1.0f));
+	Planet* phobos = new Planet(this, phobosMesh, 0.8f, 0.0f);
+	phobos->setPosition(1.8f, 0.5f, 0.0f);
+	phobos->setScale(0.12f, 0.12f, 0.12f);
+	mars->addChild(phobos);
+	Components.push_back(phobos);
+
+	MeshComponent* deimosMesh = new SphereComponent(this, DirectX::XMFLOAT4(0.6f, 0.5f, 0.4f, 1.0f));
+	Planet* deimos = new Planet(this, deimosMesh, 0.25f, 0.0f);
+	deimos->setPosition(-2.2f, -0.8f, 1.2f);
+	deimos->setScale(0.1f, 0.1f, 0.1f);
+	mars->addChild(deimos);
+	Components.push_back(deimos);
+
+	// Юпитер
+	MeshComponent* jupiterMesh = new SphereComponent(this, DirectX::XMFLOAT4(0.7f, 0.6f, 0.5f, 1.0f));
+	Planet* jupiter = new Planet(this, jupiterMesh, 0.2f, 18.0f);
+	jupiter->setPosition(18.0f, 0.0f, 0.0f);
+	jupiter->setScale(2.2f, 2.2f, 2.2f);
+	sun->addChild(jupiter);
+	Components.push_back(jupiter);
+
+	// Луны Юпитера
+	MeshComponent* ioSternMesh = new SphereComponent(this, DirectX::XMFLOAT4(0.9f, 0.7f, 0.3f, 1.0f));
+	Planet* io = new Planet(this, ioSternMesh, 1.5f, 0.0f);
+	io->setPosition(3.5f, 0.0f, 0.0f);
+	io->setScale(0.4f, 0.4f, 0.4f);
+	jupiter->addChild(io);
+	Components.push_back(io);
+
+	MeshComponent* europaMesh = new SphereComponent(this, DirectX::XMFLOAT4(0.7f, 0.8f, 0.9f, 1.0f));
+	Planet* europa = new Planet(this, europaMesh, 3.0f, 0.0f);
+	europa->setPosition(-4.2f, 1.2f, 1.5f);
+	europa->setScale(0.35f, 0.35f, 0.35f);
+	jupiter->addChild(europa);
+	Components.push_back(europa);
+
+	MeshComponent* ganymedeMesh = new SphereComponent(this, DirectX::XMFLOAT4(0.6f, 0.7f, 0.6f, 1.0f));
+	Planet* ganymede = new Planet(this, ganymedeMesh, 3.8f, 0.0f);
+	ganymede->setPosition(5.8f, -1.0f, 2.0f);
+	ganymede->setScale(0.45f, 0.45f, 0.45f);
+	jupiter->addChild(ganymede);
+	Components.push_back(ganymede);
+
+	MeshComponent* callistoMesh = new SphereComponent(this, DirectX::XMFLOAT4(0.5f, 0.5f, 0.4f, 1.0f));
+	Planet* callisto = new Planet(this, callistoMesh, 4.2f, 0.0f);
+	callisto->setPosition(-7.0f, -1.5f, -1.8f);
+	callisto->setScale(0.42f, 0.42f, 0.42f);
+	jupiter->addChild(callisto);
+	Components.push_back(callisto);
+
+	// Астероиды
+	for (int i = 0; i < 30; i++) {
+	
+		float randomValue = static_cast<float>(rand()) / RAND_MAX;
+		float angle = randomValue * 2.0f * 3.14159f;
+
+		float radius = 6.0f + (i * 0.1f);
+		MeshComponent* asteroidMesh = new SphereComponent(this, DirectX::XMFLOAT4(0.5f, 0.4f, 0.3f, 1.0f));
+		Planet* asteroid = new Planet(this, asteroidMesh, 1.0f, 0.0f);
+		asteroid->setPosition(cos(angle) * radius, sin(angle) * radius * 0.2f, sin(angle) * radius * 0.5f);
+		asteroid->setScale(0.08f, 0.08f, 0.08f);
+		sun->addChild(asteroid);
+		Components.push_back(asteroid);
+
+	}
+	
 }
 void Game::CreateBackBuffer() {
 	ID3D11Texture2D* backTex;
@@ -312,7 +409,7 @@ void Game::processInput(float deltaTime) {
 	
 #pragma region CameraControls
 	float moveSpeed = speed * deltaTime*0.15f;
-	float rotSpeed = 0.1f * deltaTime;
+	float rotSpeed = 0.6f * deltaTime;
 	int objectCount = static_cast<int>(Components.size());
 	currentComponentIndex = (currentComponentIndex + objectCount) % objectCount;
 
@@ -336,11 +433,38 @@ void Game::processInput(float deltaTime) {
 	// Mode switching
 	if (inputDevice.IsKeyPressed(Keys::NumPad1)) { mainCamera->SetMode(CameraMode::Free); printf("Set camera mode"); }
 	if (inputDevice.IsKeyPressed(Keys::NumPad2) && !Components.empty())
-		mainCamera->AttachToFP(Components[currentComponentIndex++ % Components.size()]);
+		mainCamera->AttachToFP(Components[++currentComponentIndex % Components.size()]);
 	if (inputDevice.IsKeyPressed(Keys::NumPad3) && !Components.empty())
-		mainCamera->AttachToTP(Components[currentComponentIndex++ % Components.size()]);
+		mainCamera->AttachToTP(Components[++currentComponentIndex % Components.size()]);
 #pragma endregion
 
+#pragma region ObjectControls
+	if (mainCamera->GetMode() == CameraMode::FirstPerson || mainCamera->GetMode() == CameraMode::ThirdPerson) {
+		float moveSpeed = speed * deltaTime * 10.15f;
+		Planet* currentPlanet = dynamic_cast<Planet*>(Components[currentComponentIndex % Components.size()]);
+
+		if (currentPlanet) {
+			currentPlanet->isControlledByPlayer = true;
+			if (inputDevice.IsKeyDown(Keys::W)) {
+				currentPlanet->translate(DirectX::XMFLOAT3(0, 0, moveSpeed));
+			} // Forward
+			if (inputDevice.IsKeyDown(Keys::S))
+				currentPlanet->translate(DirectX::XMFLOAT3(0, 0, -moveSpeed)); // Backward
+			if (inputDevice.IsKeyDown(Keys::A))
+				currentPlanet->translate(DirectX::XMFLOAT3(-moveSpeed, 0, 0)); // Left
+			if (inputDevice.IsKeyDown(Keys::D))
+				currentPlanet->translate(DirectX::XMFLOAT3(moveSpeed, 0, 0));  // Right
+			if (inputDevice.IsKeyDown(Keys::Q))
+				currentPlanet->translate(DirectX::XMFLOAT3(0, moveSpeed, 0));  // Up
+			if (inputDevice.IsKeyDown(Keys::E))
+				currentPlanet->translate(DirectX::XMFLOAT3(0, -moveSpeed, 0)); // Down
+		}
+		// Mouse look
+		DirectX::SimpleMath::Vector2 mouseDelta = inputDevice.MouseOffset;
+		mainCamera->Yaw(mouseDelta.x * rotSpeed);
+		mainCamera->Pitch(-mouseDelta.y * rotSpeed);
+
+	}
 	if (players.size() >= 4) {
 		struct ControlScheme {
 			int playerIndex;
@@ -371,6 +495,7 @@ void Game::processInput(float deltaTime) {
 			if (inputDevice.IsKeyDown(Keys::Right)) comp->rotate(DirectX::XMFLOAT3(0, -speed * deltaTime, 0));
 		}
 	}
+#pragma endregion
 	inputDevice.UpdateKeyStates();
 }
 void Game::ballCheck() {

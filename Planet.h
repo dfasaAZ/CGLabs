@@ -12,6 +12,7 @@ private:
     float currentOrbitAngle;    
     float currentRotationAngle; 
     DirectX::XMFLOAT3 orbitCenter;
+	
     float orbitRadius;
     //Компоненты наследники
     std::vector<Planet*> childMoons;
@@ -20,7 +21,7 @@ public:
     Planet(Game* g, MeshComponent* meshComponent,
         float orbitSpeed = 1.0f,
         float rotationSpeed = 1.0f);
-
+    bool isControlledByPlayer;
     virtual ~Planet();
 
     virtual void draw() override;
@@ -31,6 +32,7 @@ public:
     virtual void addChild(GameComponent* child) override;
     void setPosition(float x, float y, float z);
     void setScale(float x, float y, float z);
+    void translate(DirectX::XMFLOAT3 delta);
 	//virtual void addMoon(Planet* moon);
     // Orbit around the orbit center point
     void rotateAgainstParent(float deltaTime);
